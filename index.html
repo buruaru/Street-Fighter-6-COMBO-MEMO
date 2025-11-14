@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SF6 COMMAND MEMO</title>
-    <!-- style.cssの内容をここに統合 -->
     <style>
         @font-face {
             font-family: 'Gobold';
@@ -45,10 +44,9 @@
             padding: 20px;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            position: relative; /* バージョンボタンの配置基準 */
+            position: relative; 
         }
 
-        /* バージョン更新ボタン */
         .version-update-container {
             position: absolute;
             top: 20px;
@@ -90,7 +88,6 @@
             box-shadow: 0 0 10px #ff003c;
             z-index: 11;
         }
-        /* バージョン更新ボタン 終わり */
 
 
         .header {
@@ -121,10 +118,12 @@
             align-items: center;
             margin-bottom: 20px;
             gap: 20px;
+            flex-wrap: wrap; 
         }
 
         .select-group {
             flex-grow: 1;
+            min-width: 200px; 
         }
 
         .select-group label {
@@ -205,6 +204,30 @@
             background-color: var(--highlight-color);
             box-shadow: 0 0 15px var(--highlight-color);
         }
+
+        .player-toggle {
+            margin-left: 20px; 
+        }
+        .player-toggle .mode-btn {
+            width: 80px; 
+        }
+        .player-toggle .mode-btn:first-child {
+            margin-left: -18px;
+        }
+        .player-toggle .mode-btn:last-child {
+            margin-right: -18px; 
+        }
+        .player-toggle .mode-btn-content {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .player-toggle .mode-btn:first-child .mode-btn-content {
+            padding-left: 33px; 
+        }
+        .player-toggle .mode-btn:last-child .mode-btn-content {
+            padding-right: 33px; 
+        }
+
 
         .form-card {
             background-color: var(--card-color);
@@ -304,14 +327,10 @@
         #current-combo-display img {
             height: 35px;
             width: auto;
-            /* ★ 修正：マージンを左右3pxに変更し、画像間の間隔を確保 */
             margin: 0 3px;
             display: inline-block; 
             vertical-align: middle;
-            /* === 修正点 === */
-            /* 画像がクリックイベントを邪魔しないように設定 */
             pointer-events: none; 
-            /* === 修正ここまで === */
         }
 
         .btn {
@@ -323,7 +342,6 @@
             transition: background-color 0.2s;
         }
 
-        /* コンボ追加/更新ボタン */
         .btn-add {
             background-color: var(--highlight-color);
             color: white;
@@ -342,9 +360,8 @@
 
         .btn-add:hover { background-color: #b06ef3; }
 
-        /* 編集モード時の更新ボタンのスタイル */
         .btn-add.update-mode {
-            background-color: #08ff08; /* 更新中は緑色 */
+            background-color: #08ff08; 
         }
         .btn-add.update-mode:hover {
             background-color: #33ff33;
@@ -359,9 +376,8 @@
         }
         .btn-clear:hover { background-color: #999; }
 
-        /* 編集モード時のキャンセルボタンのスタイル */
         .btn-clear.cancel-mode {
-            background-color: #e94560; /* キャンセルは赤色 */
+            background-color: #e94560; 
         }
         .btn-clear.cancel-mode:hover {
             background-color: #f06a81;
@@ -377,7 +393,6 @@
         }
         .btn-delete:hover { background-color: #f06a81; }
 
-        /* 編集ボタン */
         .btn-edit {
             background-color: #3a3a6a;
             color: white;
@@ -391,7 +406,7 @@
 
         #combo-list {
             display: grid;
-            grid-template-columns: 1fr; /* 常に1列にする */
+            grid-template-columns: 1fr; 
             gap: 15px;
         }
 
@@ -429,7 +444,7 @@
             background-color: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             min-height: 30px;
-            padding: 5px; /* パディングを少し増やす */
+            padding: 5px; 
             border-radius: 4px;
         }
         .combo-card .combo-commands img {
@@ -437,7 +452,6 @@
             vertical-align: middle;
             margin: 0 2px;
             display: inline-block; 
-            /* === 修正点（リスト側も同様に） === */
             pointer-events: none;
         }
 
@@ -448,15 +462,15 @@
             align-items: flex-end;
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.2);
-            min-width: 80px; /* 編集ボタンのため少し広げる */
+            min-width: 80px; 
         }
 
         .gauge-display {
             display: flex;
             flex-direction: column;
             gap: 5px;
-            width: 100%; /* 横幅をいっぱいに */
-            align-items: flex-end; /* 右寄せ */
+            width: 100%; 
+            align-items: flex-end; 
         }
 
         .drive-gauge-display, .sa-gauge-display {
@@ -495,7 +509,7 @@
 
 
         .modal-overlay {
-            display: none; /* デフォルトは非表示 */
+            display: none; 
             position: fixed;
             top: 0;
             left: 0;
@@ -508,13 +522,11 @@
             justify-content: center;
             align-items: center;
             
-            /* フェードイン/アウト用 */
             opacity: 0;
             transform: scale(0.95);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        /* モーダル表示用クラス */
         .modal-visible {
             display: flex;
             opacity: 1;
@@ -529,7 +541,7 @@
             border: 1px solid var(--highlight-color);
             box-shadow: 0 0 20px rgba(154, 78, 241, 0.7);
             width: 90%;
-            max-width: 450px; /* 少し幅を広げる */
+            max-width: 450px; 
             text-align: center;
         }
         .modal-content p {
@@ -575,7 +587,6 @@
 <body>
 
     <div class="container">
-        <!-- バージョン更新ボタンコンテナ -->
         <div class="version-update-container">
             <span class="unread-dot hidden" id="unread-dot"></span>
             <button class="btn btn-version" id="version-btn">
@@ -603,7 +614,7 @@
                     <option value="ken">ケン</option>
                     <option value="blanka">ブランカ</option>
                     <option value="dhalsim">ダルシム</option>
-                    <option value="honda">エドモンド本田</option>
+                    <option valuea="honda">エドモンド本田</option>
                     <option value="deejay">ディージェイ</option>
                     <option value="manon">マノン</option>
                     <option value="marisa">マリーザ</option>
@@ -636,6 +647,16 @@
                     </span>
                 </button>
             </div>
+            
+            <div class="mode-toggle player-toggle">
+                <button id="player-1p" class="mode-btn active" data-side="1p">
+                    <span class="mode-btn-content">1P</span>
+                </button>
+                <button id="player-2p" class="mode-btn" data-side="2p">
+                    <span class="mode-btn-content">2P</span>
+                </button>
+            </div>
+
         </div>
 
         <div class="form-card" id="form-card">
@@ -677,7 +698,6 @@
 
     </div>
 
-    <!-- 削除確認モーダル -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-content">
             <p id="delete-modal-text">「コンボ名」を本当に削除しますか？</p>
@@ -692,12 +712,10 @@
         </div>
     </div>
 
-    <!-- バージョン情報モーダル -->
     <div id="version-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 class="main-title" style="font-size: 2rem; margin-top: 0;">UPDATE INFO</h2>
             <div id="version-info-content" style="text-align: left; max-height: 300px; overflow-y: auto; padding-right: 10px;">
-                <!-- JSで挿入されます -->
             </div>
             <div class="modal-actions" style="margin-top: 20px;">
                 <button id="version-modal-close" class="btn btn-cancel modal-btn" style="flex-grow: 1;">閉じる</button>
@@ -705,11 +723,9 @@
         </div>
     </div>
 
-    <!-- script.jsの内容をここに統合 -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // アプリのバージョンと更新履歴
             const APP_VERSION = 'v0.1.1';
             const VERSION_HISTORY = [
                 { version: 'v0.1.1', notes: 'コンボの再編集機能を追加。' },
@@ -722,7 +738,10 @@
                 'down_left': 'https://www.streetfighter.com/6/assets/images/common/controller/key-dl.png',
                 'left': 'https://www.streetfighter.com/6/assets/images/common/controller/key-l.png',
                 'plus': 'https://www.streetfighter.com/6/assets/images/common/controller/key-plus.png',
-                'arrow': 'https://www.streetfighter.com/6/assets/images/common/controller/arrow_3.png',
+                
+                'arrow_left': 'https://www.streetfighter.com/6/assets/images/common/controller/arrow_3.png',
+                'arrow_right': 'https://www.streetfighter.com/6/assets/images/common/controller/arrow_1.png', 
+
                 'crouch': 'https://www.streetfighter.com/6/assets/images/common/controller/key-lc.png',
                 'down_c': 'https://www.streetfighter.com/6/assets/images/common/controller/key-dc.png',
                 'up': 'https://www.streetfighter.com/6/assets/images/common/controller/key-u.png',
@@ -730,6 +749,8 @@
                 'or': 'https://www.streetfighter.com/6/assets/images/common/controller/key-or.png',
                 'down_right': 'https://www.streetfighter.com/6/assets/images/common/controller/key-dr.png',
                 
+                'right_crouch': 'https://www.streetfighter.com/6/assets/images/common/controller/key-rc.png',
+
                 'm_l': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_l.png',
                 'm_m': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_m.png',
                 'm_h': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_h.png',
@@ -751,7 +772,7 @@
             };
 
             const commandGroups = {
-                common: ['up', 'left', 'down', 'right', 'down_left', 'down_right', 'neutral', 'plus', 'arrow', 'or', 'crouch', 'down_c'],
+                common: ['up', 'left', 'down', 'right', 'down_left', 'down_right', 'neutral', 'plus', 'arrow_left', 'arrow_right', 'or', 'crouch', 'down_c', 'right_crouch'],
                 modern: ['m_l', 'm_m', 'm_h', 'm_sp', 'm_auto', 'm_di', 'm_dp', 'throw', 'barrage'],
                 classic: ['lp', 'mp', 'hp', 'punch', 'lk', 'mk', 'hk', 'kick']
             };
@@ -769,27 +790,28 @@
                 comboNameInput: document.getElementById('combo-name'),
                 driveGaugeInput: document.getElementById('drive-gauge'),
                 saGaugeInput: document.getElementById('sa-gauge'),
-                formCard: document.getElementById('form-card'), // 編集時のスクロール用
-                // 削除モーダル
+                formCard: document.getElementById('form-card'), 
                 deleteModal: document.getElementById('delete-modal'),
                 deleteModalText: document.getElementById('delete-modal-text'),
                 dontAskAgainCheck: document.getElementById('dont-ask-again'),
                 modalBtnCancel: document.getElementById('modal-btn-cancel'),
                 modalBtnConfirm: document.getElementById('modal-btn-confirm'),
-                // バージョンモーダル
                 versionBtn: document.getElementById('version-btn'),
                 unreadDot: document.getElementById('unread-dot'),
                 versionModal: document.getElementById('version-modal'),
                 versionModalClose: document.getElementById('version-modal-close'),
                 versionInfoContent: document.getElementById('version-info-content'),
+                player1PBtn: document.getElementById('player-1p'),
+                player2PBtn: document.getElementById('player-2p'),
             };
 
             let selectedMode = 'modern';
             let selectedCharacter = 'all';
             let comboToDelete = null;
-            let editingComboId = null; // 編集中のコンボID
+            let editingComboId = null; 
             let dontAskOnDelete = localStorage.getItem('dontAskOnDelete') === 'true';
-            let savedRange = null; // カーソル位置を保存する変数
+            let savedRange = null; 
+            let isPlayer2Side = false; 
 
             function createCommandPad() {
                 dom.commandPad.innerHTML = '';
@@ -815,8 +837,6 @@
                 commandGroups.classic.forEach(key => createBtn(key, 'classic-only'));
             }
 
-            // --- イベントリスナー ---
-
             dom.characterSelect.addEventListener('change', (e) => {
                 selectedCharacter = e.target.value;
                 loadCombos();
@@ -824,28 +844,30 @@
 
             dom.modeModernBtn.addEventListener('click', () => switchMode('modern'));
             dom.modeClassicBtn.addEventListener('click', () => switchMode('classic'));
+            
+            dom.player1PBtn.addEventListener('click', () => switchPlayerSide('1p'));
+            dom.player2PBtn.addEventListener('click', () => switchPlayerSide('2p'));
 
-            // ★ current-combo-display 内でのカーソル位置を保存する
+
             const saveSelection = () => {
                 const selection = window.getSelection();
                 if (selection.rangeCount > 0) {
                     const range = selection.getRangeAt(0);
                     let container = range.startContainer;
                     
-                    // 親をたどって #current-combo-display があるか確認
                     while (container) {
-                        if (container.nodeType === 9) { // 9 = DOCUMENT_NODE
-                             break; // ドキュメントルートまで達したら終了
+                        if (container.nodeType === 9) { 
+                             break; 
                         }
                         if (container.id === 'current-combo-display') {
-                            savedRange = range; // 入力欄の中なら保存
+                            savedRange = range; 
                             return; 
                         }
                         container = container.parentElement;
                     }
                 }
+                savedRange = null; 
             };
-            // ★ blur, mouseup, keyup でカーソル位置を保存
             dom.currentComboDisplay.addEventListener('blur', saveSelection);
             dom.currentComboDisplay.addEventListener('mouseup', saveSelection);
             dom.currentComboDisplay.addEventListener('keyup', saveSelection);
@@ -853,16 +875,23 @@
 
             dom.commandPad.addEventListener('click', (e) => onCommandClick(e));
 
-            // ペースト時の処理
             dom.currentComboDisplay.addEventListener('paste', (e) => {
                 e.preventDefault(); 
                 const text = (e.originalEvent || e).clipboardData.getData('text/plain');
                 if (!text) return;
 
                 const selection = window.getSelection();
-                if (!selection.rangeCount) return;
                 
-                const range = selection.getRangeAt(0);
+                let range;
+                if (savedRange && selection.rangeCount > 0) {
+                    range = savedRange;
+                } else if (selection.rangeCount > 0) {
+                    range = selection.getRangeAt(0);
+                } else {
+                    range = document.createRange();
+                    range.selectNodeContents(dom.currentComboDisplay);
+                    range.collapse(false);
+                }
                 
                 let container = range.startContainer;
                 let isInDisplay = false;
@@ -871,6 +900,7 @@
                         isInDisplay = true;
                         break;
                     }
+                    if (container.nodeType === 9) break; 
                     container = container.parentElement;
                 }
 
@@ -879,28 +909,28 @@
                     range.collapse(false); 
                 }
 
+                selection.removeAllRanges();
+                selection.addRange(range);
+
                 range.deleteContents(); 
                 
                 const textNode = document.createTextNode(text);
                 range.insertNode(textNode);
                 
-                // ゼロ幅スペースを挿入してカーソル位置を制御
-                const zeroWidthSpace = document.createTextNode('\u200B');
-                range.insertNode(zeroWidthSpace);
-
-                range.setStartAfter(zeroWidthSpace);
+                range.setStartAfter(textNode);
                 range.collapse(true);
                 selection.removeAllRanges();
                 selection.addRange(range);
+
+                savedRange = range;
             });
 
             dom.clearComboBtn.addEventListener('click', () => {
                 if (editingComboId) {
-                    // 編集キャンセルの場合
                     resetForm();
                 } else {
-                    // 通常のクリアの場合
                     dom.currentComboDisplay.innerHTML = '';
+                    savedRange = null; 
                 }
             });
 
@@ -908,7 +938,6 @@
                 const name = dom.comboNameInput.value.trim();
                 const gauge = parseInt(dom.driveGaugeInput.value, 10) || 0;
                 const saGauge = parseInt(dom.saGaugeInput.value, 10) || 0;
-                // ★ 修正：ゼロ幅スペースの削除処理を削除 (不要になったため)
                 const commandsHtml = dom.currentComboDisplay.innerHTML; 
 
                 if (!name) {
@@ -921,7 +950,6 @@
                 }
 
                 if (editingComboId) {
-                    // コンボを更新
                     updateCombo({
                         id: editingComboId,
                         name: name,
@@ -932,7 +960,6 @@
                         character: dom.characterSelect.value 
                     });
                 } else {
-                    // 新規コンボを追加
                     saveCombo({
                         id: Date.now(),
                         name: name,
@@ -948,7 +975,6 @@
                 resetForm();
             });
             
-            // --- 削除モーダル関連 ---
             dom.modalBtnCancel.addEventListener('click', () => {
                 hideModal(dom.deleteModal);
                 comboToDelete = null;
@@ -968,14 +994,12 @@
                 comboToDelete = null;
             });
 
-            // --- バージョンモーダル関連 ---
             dom.versionBtn.addEventListener('click', () => {
                 showVersionModal();
             });
             dom.versionModalClose.addEventListener('click', () => {
                 hideModal(dom.versionModal);
             });
-            // モーダル背景クリックで閉じる
             dom.versionModal.addEventListener('click', (e) => {
                 if (e.target === dom.versionModal) {
                     hideModal(dom.versionModal);
@@ -988,7 +1012,17 @@
             });
 
 
-            // --- 関数定義 ---
+            function switchPlayerSide(side) {
+                isPlayer2Side = (side === '2p');
+                if (isPlayer2Side) {
+                    dom.player1PBtn.classList.remove('active');
+                    dom.player2PBtn.classList.add('active');
+                } else {
+                    dom.player1PBtn.classList.add('active');
+                    dom.player2PBtn.classList.remove('active');
+                }
+                loadCombos(); 
+            }
 
             function switchMode(mode) {
                 selectedMode = mode;
@@ -1004,10 +1038,9 @@
                     dom.commandPad.classList.add('classic-mode');
                 }
                 loadCombos();
-                resetForm(); // モード切替時はフォームリセット
+                resetForm(); 
             }
 
-            // コマンドボタンクリック
             function onCommandClick(e) {
                 const btn = e.target.closest('.command-btn');
                 if (btn) {
@@ -1016,33 +1049,49 @@
                     img.src = imgSrc;
                     img.onerror = function() { this.style.display='none'; }
                     
-                    dom.currentComboDisplay.focus(); // まずフォーカスを戻す
+                    dom.currentComboDisplay.focus(); 
                     const selection = window.getSelection();
                     
                     let range;
-
-                    // ★ 常に末尾に追加する
-                    range = document.createRange();
-                    range.selectNodeContents(dom.currentComboDisplay); // div全体を選択
-                    range.collapse(false); // 選択を解除し、カーソルを末尾(false)に移動
-
-                    selection.removeAllRanges(); // 現在の選択範囲をすべてクリア
-                    selection.addRange(range);   // 新しい末尾の range を適用
-
-                    range.deleteContents(); // (末尾なので何も削除されないはずだが念のため)
-                    range.insertNode(img);
-
-                    // ★ 修正：ゼロ幅スペースの挿入を削除
-                    // const zeroWidthSpace = document.createTextNode('\u200B');
-                    // range.insertNode(zeroWidthSpace);
                     
-                    // ★ 修正：カーソルを img の直後に設定
+                    if (savedRange) {
+                        range = savedRange;
+                    } else if (selection.rangeCount > 0) {
+                        range = selection.getRangeAt(0);
+                    } else {
+                        range = document.createRange();
+                        range.selectNodeContents(dom.currentComboDisplay);
+                        range.collapse(false); 
+                    }
+                    
+                    let container = range.startContainer;
+                    let isInDisplay = false;
+                    while (container) {
+                        if (container.id === 'current-combo-display') {
+                            isInDisplay = true;
+                            break;
+                        }
+                         if (container.nodeType === 9) break; 
+                        container = container.parentElement;
+                    }
+
+                    if (!isInDisplay) {
+                        range = document.createRange();
+                        range.selectNodeContents(dom.currentComboDisplay);
+                        range.collapse(false);
+                    }
+
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+
+                    range.deleteContents(); 
+                    range.insertNode(img);
+                    
                     range.setStartAfter(img); 
                     range.collapse(true);
                     selection.removeAllRanges();
                     selection.addRange(range);
 
-                    // ★ 次回の挿入のために、現在のカーソル位置（＝末尾）を保存
                     savedRange = range;
                 }
             }
@@ -1053,7 +1102,6 @@
                 setTimeout(() => { element.style.outline = 'none'; }, 2000);
             }
 
-            // コンボカード作成 (編集ボタン追加)
             function createComboCard(comboData) {
                 const card = document.createElement('div');
                 card.className = 'combo-card';
@@ -1096,7 +1144,6 @@
                     </div>
                 `;
 
-                // 削除ボタンのイベント
                 card.querySelector('.btn-delete').addEventListener('click', () => {
                     comboToDelete = comboData;
                     if (dontAskOnDelete) {
@@ -1110,36 +1157,49 @@
                     }
                 });
 
-                // 編集ボタンのイベント
                 card.querySelector('.btn-edit').addEventListener('click', () => {
-                    // 編集モードに移行
                     editingComboId = comboData.id;
                     
-                    // フォームにデータをロード
-                    dom.comboNameInput.value = comboData.name;
-                    dom.driveGaugeInput.value = comboData.gauge;
-                    dom.saGaugeInput.value = comboData.saGauge;
-                    dom.currentComboDisplay.innerHTML = comboData.commands;
+                    const originalCombo = getCombosFromStorage().find(c => c.id === comboData.id);
                     
-                    // キャラとモードを選択（重要：フィルターがかかっているためモードは同じはずだが、キャラは合わせる）
-                    dom.characterSelect.value = comboData.character;
-                    selectedCharacter = comboData.character;
+                    if (!originalCombo) {
+                         console.error('編集対象のコンボが見つかりません。ID:', comboData.id);
+                         return;
+                    }
+                    
+                    dom.comboNameInput.value = originalCombo.name;
+                    dom.driveGaugeInput.value = originalCombo.gauge;
+                    dom.saGaugeInput.value = originalCombo.saGauge;
+                    dom.currentComboDisplay.innerHTML = originalCombo.commands;
+                    
+                    dom.characterSelect.value = originalCombo.character;
+                    selectedCharacter = originalCombo.character;
+                    switchMode(originalCombo.mode);
 
-                    // ボタンのテキストとスタイルを変更
+
                     dom.addBtnText.textContent = 'この内容で更新';
-                    dom.addComboBtn.classList.add('update-mode');
+                    dom.addBtnText.parentElement.classList.add('update-mode'); 
                     dom.clearComboBtn.textContent = '編集をキャンセル';
                     dom.clearComboBtn.classList.add('cancel-mode');
                     
-                    // フォームにスクロール
                     dom.formCard.scrollIntoView({ behavior: 'smooth' });
+                    
+                    setTimeout(() => {
+                        dom.currentComboDisplay.focus();
+                        const range = document.createRange();
+                        range.selectNodeContents(dom.currentComboDisplay);
+                        range.collapse(false);
+                        const selection = window.getSelection();
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        savedRange = range;
+                    }, 100); 
                 });
 
 
                 dom.comboList.appendChild(card);
             }
 
-            // フォームをリセット（編集モード解除）
             function resetForm() {
                 editingComboId = null;
                 dom.comboNameInput.value = '';
@@ -1148,9 +1208,11 @@
                 dom.currentComboDisplay.innerHTML = '';
                 
                 dom.addBtnText.textContent = 'このコンボを追加';
-                dom.addComboBtn.classList.remove('update-mode');
+                dom.addBtnText.parentElement.classList.remove('update-mode'); 
                 dom.clearComboBtn.textContent = '入力をクリア';
                 dom.clearComboBtn.classList.remove('cancel-mode');
+                
+                savedRange = null;
             }
 
             function loadCombos() {
@@ -1163,7 +1225,106 @@
                     return modeMatch && charMatch;
                 });
                 
-                filteredCombos.forEach(combo => createComboCard(combo));
+                filteredCombos.forEach(originalComboData => {
+                    
+                    let comboDataToRender = { ...originalComboData }; 
+
+                    if (isPlayer2Side) {
+                        
+                        const escapeRegExp = (string) => {
+                            return string ? string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+                        }
+                        
+                        let flippedHtml = originalComboData.commands;
+                        
+                        const tempPlaceholder = '___TEMP_FLIP___' + Date.now() + '___';
+
+                        
+                        if (allCommandUrls['right'] && allCommandUrls['left']) {
+                            const rightEsc = escapeRegExp(allCommandUrls['right']);
+                            const leftEsc = escapeRegExp(allCommandUrls['left']);
+                            if(rightEsc && leftEsc) {
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(rightEsc, 'g'), 
+                                    tempPlaceholder
+                                );
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(leftEsc, 'g'), 
+                                    allCommandUrls['right']
+                                );
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(tempPlaceholder, 'g'), 
+                                    allCommandUrls['left']
+                                );
+                            }
+                        }
+
+                        
+                        if (allCommandUrls['down_right'] && allCommandUrls['down_left']) {
+                            const drEsc = escapeRegExp(allCommandUrls['down_right']);
+                            const dlEsc = escapeRegExp(allCommandUrls['down_left']);
+                            if(drEsc && dlEsc) {
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(drEsc, 'g'), 
+                                    tempPlaceholder
+                                );
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(dlEsc, 'g'), 
+                                    allCommandUrls['down_right']
+                                );
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(tempPlaceholder, 'g'), 
+                                    allCommandUrls['down_left']
+                                );
+                            }
+                        }
+                        
+                        
+                        if (allCommandUrls['arrow_right'] && allCommandUrls['arrow_left']) { 
+                            const arEsc = escapeRegExp(allCommandUrls['arrow_right']);
+                            const alEsc = escapeRegExp(allCommandUrls['arrow_left']);
+                            if(arEsc && alEsc) {
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(arEsc, 'g'), 
+                                    tempPlaceholder
+                                );
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(alEsc, 'g'), 
+                                    allCommandUrls['arrow_right']
+                                );
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(tempPlaceholder, 'g'), 
+                                    allCommandUrls['arrow_left']
+                                );
+                            }
+                        }
+
+                        
+                        if (allCommandUrls['crouch'] && allCommandUrls['right_crouch']) { 
+                            const cEsc = escapeRegExp(allCommandUrls['crouch']);
+                            const rcEsc = escapeRegExp(allCommandUrls['right_crouch']);
+                            if(cEsc && rcEsc) {
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(cEsc, 'g'), 
+                                    tempPlaceholder
+                                );
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(rcEsc, 'g'), 
+                                    allCommandUrls['crouch']
+                                );
+                                flippedHtml = flippedHtml.replace(
+                                    new RegExp(tempPlaceholder, 'g'), 
+                                    allCommandUrls['right_crouch']
+                                );
+                            }
+                        }
+
+                        
+                        comboDataToRender.commands = flippedHtml;
+                    }
+                    
+                    createComboCard(comboDataToRender);
+                });
             }
 
             function getCombosFromStorage() {
@@ -1176,12 +1337,11 @@
                 localStorage.setItem('sf6ComboMemo', JSON.stringify(combos));
             }
 
-            // コンボ更新処理
             function updateCombo(updatedComboData) {
                 let combos = getCombosFromStorage();
                 combos = combos.map(combo => {
                     if (combo.id === updatedComboData.id) {
-                        return updatedComboData; // 該当IDのコンボを新しいデータで置き換え
+                        return updatedComboData; 
                     }
                     return combo;
                 });
@@ -1195,12 +1355,12 @@
             }
 
             function escapeHTML(str) {
+                if (typeof str !== 'string') return '';
                 return str.replace(/[&<>"']/g, function(match) {
                     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
                 });
             }
 
-            // --- バージョン管理 ---
             function checkVersionUpdate() {
                 const lastReadVersion = localStorage.getItem('sf6LastReadVersion');
                 if (lastReadVersion !== APP_VERSION) {
@@ -1209,7 +1369,6 @@
             }
 
             function showVersionModal() {
-                // バージョン履歴をモーダルに書き込む
                 let historyHtml = '';
                 VERSION_HISTORY.forEach(item => {
                     historyHtml += `<h3 style="color: var(--highlight-color); margin-bottom: 5px;">${item.version}</h3><p style="margin-top: 0; margin-bottom: 15px;">- ${item.notes}</p>`;
@@ -1218,29 +1377,26 @@
                 
                 showModal(dom.versionModal);
                 
-                // モーダルを開いたら既読にする
                 localStorage.setItem('sf6LastReadVersion', APP_VERSION);
                 dom.unreadDot.classList.add('hidden');
             }
 
-            // --- 汎用モーダル表示/非表示 ---
             function showModal(modalElement) {
                 modalElement.style.display = 'flex';
                 setTimeout(() => {
                     modalElement.classList.add('modal-visible');
-                }, 10); // display:flex が適用された直後にクラスを追加
+                }, 10); 
             }
 
             function hideModal(modalElement) {
                 modalElement.classList.remove('modal-visible');
                 setTimeout(() => {
                     modalElement.style.display = 'none';
-                }, 300); // transitionの時間と合わせる
+                }, 300); 
             }
 
-            // --- 初期化処理 ---
             createCommandPad();
-            switchMode(selectedMode);
+            switchMode(selectedMode); 
             checkVersionUpdate();
         });
     </script>
