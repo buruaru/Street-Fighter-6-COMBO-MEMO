@@ -45,6 +45,7 @@
             padding: 20px;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            position: relative; /* バージョンボタンの配置基準 */
         }
 
         .header {
@@ -434,6 +435,15 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            
+            /* フェード用スタイル */
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+
+        /* JSで display:flex を設定した直後にこのクラスを追加する */
+        .modal-overlay.modal-visible {
+            opacity: 1;
         }
 
         .modal-content {
@@ -445,7 +455,21 @@
             width: 90%;
             max-width: 400px;
             text-align: center;
+
+            /* フェード時に少し拡大するエフェクト */
+            transform: scale(0.95);
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
         }
+        
+        .modal-overlay.modal-visible .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h2.modal-title {
+            color: var(--highlight-color);
+            margin-top: 0;
+        }
+
         .modal-content p {
             margin-top: 0;
             font-size: 1.1rem;
@@ -480,15 +504,63 @@
             color: white;
         }
         .btn-cancel:hover { background-color: #999; }
-
+        
         .hidden {
             display: none;
+        }
+
+        /* --- バージョン更新ボタン --- */
+        .version-update-container {
+            position: absolute;
+            top: 15px; /* ヘッダーロゴとのバランス調整 */
+            right: 20px;
+            z-index: 10;
+        }
+
+        .btn-version {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 0; /* btn-add と同様に 0 に */
+            height: 40px; /* 少し小さめに */
+            width: 160px; /* サイズ調整 */
+            transform: skewX(-20deg);
+            border-radius: 0;
+            position: relative; /* 未読マークの基準 */
+        }
+        .btn-version:hover {
+            background-color: var(--highlight-color);
+        }
+
+        .btn-version-content {
+            transform: skewX(20deg);
+            display: block;
+        }
+
+        .unread-dot {
+            display: none; /* JSで制御 */
+            position: absolute;
+            top: 2px;
+            left: 10px; /* 傾きを考慮して調整 */
+            width: 10px;
+            height: 10px;
+            background-color: #e94560; /* 赤色 */
+            border-radius: 50%;
+            border: 2px solid var(--card-color); /* 背景との境界 */
+            z-index: 11;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
+
+        <div class="version-update-container">
+            <button id="btn-version" class="btn btn-version">
+                <span id="unread-dot" class="unread-dot"></span>
+                <span class="btn-version-content">バージョン更新</span>
+            </button>
+        </div>
+
         <div class="header">
             <img src="https://www.streetfighter.com/6/assets/images/common/logo.png" alt="Street Fighter 6 Logo">
         </div>
@@ -599,6 +671,20 @@
         </div>
     </div>
 
+    <!-- バージョン情報モーダル -->
+    <div id="version-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">バージョン情報</h2>
+            <div id="version-modal-body">
+                <p>v0.1.0 - ベータテスト</p>
+            </div>
+            <div class="modal-actions">
+                <button id="version-modal-close" class="btn btn-cancel modal-btn">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- <script src="script.js" defer></script> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -660,12 +746,20 @@
                 dontAskAgainCheck: document.getElementById('dont-ask-again'),
                 modalBtnCancel: document.getElementById('modal-btn-cancel'),
                 modalBtnConfirm: document.getElementById('modal-btn-confirm'),
+                // バージョン更新用
+                versionBtn: document.getElementById('btn-version'),
+                unreadDot: document.getElementById('unread-dot'),
+                versionModal: document.getElementById('version-modal'),
+                versionModalClose: document.getElementById('version-modal-close'),
             };
 
             let selectedMode = 'modern';
             let selectedCharacter = 'all';
             let comboToDelete = null;
             let dontAskOnDelete = localStorage.getItem('dontAskOnDelete') === 'true';
+
+            const APP_VERSION = "v0.1.0";
+            const LAST_READ_VERSION_KEY = "sf6ComboMemoLastReadVersion";
 
             function createCommandPad() {
                 dom.commandPad.innerHTML = '';
@@ -898,8 +992,55 @@
                 });
             }
 
+            // --- バージョン管理 ---
+            function checkVersionUpdate() {
+                const lastReadVersion = localStorage.getItem(LAST_READ_VERSION_KEY);
+                if (lastReadVersion !== APP_VERSION) {
+                    if(dom.unreadDot) dom.unreadDot.style.display = 'block';
+                }
+            }
+
+            function showVersionModal() {
+                // 読んだことにする
+                if(dom.unreadDot) dom.unreadDot.style.display = 'none';
+                localStorage.setItem(LAST_READ_VERSION_KEY, APP_VERSION);
+                
+                // フェードイン
+                if(dom.versionModal) {
+                    dom.versionModal.style.display = 'flex';
+                    setTimeout(() => {
+                        dom.versionModal.classList.add('modal-visible');
+                    }, 10); // display:flex が反映されるのを待つ
+                }
+            }
+
+            function hideVersionModal() {
+                // フェードアウト
+                if(dom.versionModal) {
+                    dom.versionModal.classList.remove('modal-visible');
+                    setTimeout(() => {
+                        dom.versionModal.style.display = 'none';
+                    }, 300); // transitionの時間
+                }
+            }
+
+            // イベントリスナー (nullチェック追加)
+            if(dom.versionBtn) dom.versionBtn.addEventListener('click', showVersionModal);
+            if(dom.versionModalClose) dom.versionModalClose.addEventListener('click', hideVersionModal);
+            
+            if(dom.versionModal) {
+                dom.versionModal.addEventListener('click', (e) => {
+                    if (e.target === dom.versionModal) {
+                        hideVersionModal();
+                    }
+                });
+            }
+            // --- ここまでバージョン管理 ---
+
+
             createCommandPad();
             switchMode(selectedMode);
+            checkVersionUpdate(); // 起動時にバージョンチェック
         });
     </script>
 </body>
