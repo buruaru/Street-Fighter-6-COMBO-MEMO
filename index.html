@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SF6 COMMAND MEMO</title>
-    <!-- <link rel="stylesheet" href="style.css"> -->
+    <!-- style.cssの内容をここに統合 -->
     <style>
         @font-face {
             font-family: 'Gobold';
@@ -22,8 +22,6 @@
             --border-color: #5a5a9a;
             --drive-green: #08ff08;
             --sa-red: #ff003c;
-            --edit-blue: #007bff;
-            --edit-blue-hover: #0099ff;
         }
 
         body {
@@ -49,6 +47,51 @@
             -webkit-backdrop-filter: blur(10px);
             position: relative; /* バージョンボタンの配置基準 */
         }
+
+        /* バージョン更新ボタン */
+        .version-update-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .btn-version {
+            background-color: var(--primary-color);
+            color: white;
+            height: 40px;
+            padding: 0;
+            border: none;
+            transform: skewX(-20deg);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-version:hover {
+            background-color: var(--highlight-color);
+        }
+
+        .btn-version-content {
+            display: block;
+            transform: skewX(20deg);
+            padding: 0 20px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .unread-dot {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 12px;
+            height: 12px;
+            background-color: #ff003c;
+            border-radius: 50%;
+            border: 2px solid var(--card-color);
+            box-shadow: 0 0 10px #ff003c;
+            z-index: 11;
+        }
+        /* バージョン更新ボタン 終わり */
+
 
         .header {
             text-align: center;
@@ -103,44 +146,37 @@
 
         .mode-toggle {
             display: flex;
-            /* border: 2px solid var(--border-color); */ /* ← この枠線を削除 */
-            overflow: hidden; /* はみ出しを隠すため（ボタンの傾き） */
-            border-radius: 5px; /* ターゲット画像に合わせて角丸を復活 */
+            overflow: hidden; 
+            border-radius: 5px; 
         }
 
         .mode-btn {
             background-color: var(--primary-color);
             border: none;
-            padding: 0; /* paddingを内部コンテナに移動 */
+            padding: 0; 
             cursor: pointer;
             transition: background-color 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 48px;
-            width: 140px; /* 幅を固定 */
+            width: 140px; 
             
-            /* 平行四辺形 */
             transform: skewX(-20deg);
             
-            /* ボタン同士の境界線 */
             border-right: 2px solid var(--bg-color); 
         }
 
-        /* 最初のボタンの左マージンを調整 */
-        /* tan(20deg) * 48px (height) ≈ 17.5px. 18pxに丸める */
         .mode-btn:first-child {
             margin-left: -18px;
         }
 
-        /* 最後のボタンの境界線を消す */
         .mode-btn:last-child {
             border-right: none;
-            margin-right: -18px; /* 傾きで右側が切れないように調整 */
+            margin-right: -18px; 
         }
 
         .mode-btn-content {
-             /* 傾きを戻す */
             transform: skewX(20deg);
             display: flex;
             align-items: center;
@@ -148,14 +184,12 @@
             padding: 10px 15px;
         }
 
-        /* 最初のボタンのコンテンツのパディングを調整（ネガティブマージン分） */
         .mode-btn:first-child .mode-btn-content {
-            padding-left: 33px; /* 15px (original) + 18px (compensate) */
+            padding-left: 33px; 
         }
 
-        /* 最後のボタンのコンテンツのパディングを調整（ネガティブマージン分） */
         .mode-btn:last-child .mode-btn-content {
-            padding-right: 33px; /* 15px (original) + 18px (compensate) */
+            padding-right: 33px; 
         }
 
         .mode-btn img {
@@ -254,10 +288,6 @@
         }
 
         #current-combo-display {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 2px; /* ★空白の代わりにgapを使用 */
             min-height: 40px;
             background-color: #111;
             border: 1px solid var(--border-color);
@@ -274,8 +304,14 @@
         #current-combo-display img {
             height: 35px;
             width: auto;
-            /* margin: 0 2px; ← 削除 */
+            /* ★ 修正：マージンを左右3pxに変更し、画像間の間隔を確保 */
+            margin: 0 3px;
+            display: inline-block; 
             vertical-align: middle;
+            /* === 修正点 === */
+            /* 画像がクリックイベントを邪魔しないように設定 */
+            pointer-events: none; 
+            /* === 修正ここまで === */
         }
 
         .btn {
@@ -287,32 +323,32 @@
             transition: background-color 0.2s;
         }
 
-        /* コンボ追加ボタン（平行四辺形） */
+        /* コンボ追加/更新ボタン */
         .btn-add {
             background-color: var(--highlight-color);
             color: white;
             width: 100%;
             margin-top: 10px;
-            height: 45px; /* 高さを指定 */
+            height: 45px; 
             
-            /* 平行四辺形 */
             transform: skewX(-20deg);
-            border-radius: 0; /* 角丸をリセット */
-        }
-        
-        /* 編集モード時の色 */
-        .btn-add.edit-mode {
-            background-color: var(--edit-blue);
+            border-radius: 0; 
         }
 
         .btn-add-content {
-            /* 傾きを戻す */
             transform: skewX(20deg);
             display: block;
         }
 
         .btn-add:hover { background-color: #b06ef3; }
-        .btn-add.edit-mode:hover { background-color: var(--edit-blue-hover); }
+
+        /* 編集モード時の更新ボタンのスタイル */
+        .btn-add.update-mode {
+            background-color: #08ff08; /* 更新中は緑色 */
+        }
+        .btn-add.update-mode:hover {
+            background-color: #33ff33;
+        }
 
 
         .btn-clear {
@@ -322,12 +358,14 @@
             border-radius: 5px;
         }
         .btn-clear:hover { background-color: #999; }
-        
-        .btn-cancel {
-            background-color: #777;
-            color: white;
+
+        /* 編集モード時のキャンセルボタンのスタイル */
+        .btn-clear.cancel-mode {
+            background-color: #e94560; /* キャンセルは赤色 */
         }
-        .btn-cancel:hover { background-color: #999; }
+        .btn-clear.cancel-mode:hover {
+            background-color: #f06a81;
+        }
 
 
         .btn-delete {
@@ -338,21 +376,21 @@
             border-radius: 5px;
         }
         .btn-delete:hover { background-color: #f06a81; }
-        
+
+        /* 編集ボタン */
         .btn-edit {
-            background-color: var(--edit-blue);
+            background-color: #3a3a6a;
             color: white;
             padding: 5px 10px;
             font-size: 0.9rem;
             border-radius: 5px;
-            margin-bottom: 5px; /* 削除ボタンとの間隔 */
+            margin-top: 5px;
         }
-        .btn-edit:hover { background-color: var(--edit-blue-hover); }
+        .btn-edit:hover { background-color: #5a5a9a; }
 
 
         #combo-list {
             display: grid;
-            /* grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); */
             grid-template-columns: 1fr; /* 常に1列にする */
             gap: 15px;
         }
@@ -391,20 +429,18 @@
             background-color: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             min-height: 30px;
-            padding: 3px;
+            padding: 5px; /* パディングを少し増やす */
             border-radius: 4px;
-            
-            /* ★レイアウト調整 */
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 2px;
         }
         .combo-card .combo-commands img {
             height: 30px;
-            /* vertical-align: middle; ← flexで制御するので削除 */
+            vertical-align: middle;
+            margin: 0 2px;
+            display: inline-block; 
+            /* === 修正点（リスト側も同様に） === */
+            pointer-events: none;
         }
-        
+
         .combo-actions {
             display: flex;
             flex-direction: column;
@@ -412,22 +448,15 @@
             align-items: flex-end;
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.2);
-            min-width: 70px;
+            min-width: 80px; /* 編集ボタンのため少し広げる */
         }
-        
-        /* 編集/削除ボタン用コンテナ */
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            margin-top: 5px; /* ゲージとの間隔 */
-        }
-
 
         .gauge-display {
             display: flex;
             flex-direction: column;
             gap: 5px;
+            width: 100%; /* 横幅をいっぱいに */
+            align-items: flex-end; /* 右寄せ */
         }
 
         .drive-gauge-display, .sa-gauge-display {
@@ -458,7 +487,7 @@
             background-color: var(--drive-green);
             box-shadow: 0 0 8px var(--drive-green);
         }
-        
+
         .sa-icon {
             background-color: var(--sa-red);
             box-shadow: 0 0 8px var(--sa-red);
@@ -466,7 +495,7 @@
 
 
         .modal-overlay {
-            display: none;
+            display: none; /* デフォルトは非表示 */
             position: fixed;
             top: 0;
             left: 0;
@@ -479,15 +508,19 @@
             justify-content: center;
             align-items: center;
             
-            /* フェード用スタイル */
+            /* フェードイン/アウト用 */
             opacity: 0;
-            transition: opacity 0.3s ease-out;
+            transform: scale(0.95);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        /* JSで display:flex を設定した直後にこのクラスを追加する */
-        .modal-overlay.modal-visible {
+        /* モーダル表示用クラス */
+        .modal-visible {
+            display: flex;
             opacity: 1;
+            transform: scale(1);
         }
+
 
         .modal-content {
             background: var(--card-color);
@@ -496,38 +529,13 @@
             border: 1px solid var(--highlight-color);
             box-shadow: 0 0 20px rgba(154, 78, 241, 0.7);
             width: 90%;
-            max-width: 400px;
+            max-width: 450px; /* 少し幅を広げる */
             text-align: center;
-
-            /* フェード時に少し拡大するエフェクト */
-            transform: scale(0.95);
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
         }
-        
-        .modal-overlay.modal-visible .modal-content {
-            transform: scale(1);
-        }
-
-        .modal-content h2.modal-title {
-            color: var(--highlight-color);
-            margin-top: 0;
-        }
-
         .modal-content p {
             margin-top: 0;
             font-size: 1.1rem;
         }
-        
-        .modal-content #version-modal-body {
-            text-align: left;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .modal-content #version-modal-body p {
-            font-size: 1rem;
-            margin-bottom: 8px;
-        }
-
 
         .modal-checkbox {
             margin: 20px 0;
@@ -541,13 +549,12 @@
             display: flex;
             justify-content: space-around;
             gap: 15px;
-            margin-top: 20px; /* バージョンモーダル用にマージン追加 */
         }
 
         .modal-btn {
             padding: 10px 20px;
             flex-grow: 1;
-            border-radius: 5px; /* モーダルボタンは角丸のまま */
+            border-radius: 5px; 
         }
         .btn-confirm-delete {
             background-color: #e94560;
@@ -559,63 +566,23 @@
             color: white;
         }
         .btn-cancel:hover { background-color: #999; }
-        
+
         .hidden {
             display: none;
-        }
-
-        /* --- バージョン更新ボタン --- */
-        .version-update-container {
-            position: absolute;
-            top: 15px; /* ヘッダーロゴとのバランス調整 */
-            right: 20px;
-            z-index: 10;
-        }
-
-        .btn-version {
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            padding: 0; /* btn-add と同様に 0 に */
-            height: 40px; /* 少し小さめに */
-            width: 160px; /* サイズ調整 */
-            transform: skewX(-20deg);
-            border-radius: 0;
-            position: relative; /* 未読マークの基準 */
-        }
-        .btn-version:hover {
-            background-color: var(--highlight-color);
-        }
-
-        .btn-version-content {
-            transform: skewX(20deg);
-            display: block;
-        }
-
-        .unread-dot {
-            display: none; /* JSで制御 */
-            position: absolute;
-            top: 2px;
-            left: 10px; /* 傾きを考慮して調整 */
-            width: 10px;
-            height: 10px;
-            background-color: #e94560; /* 赤色 */
-            border-radius: 50%;
-            border: 2px solid var(--card-color); /* 背景との境界 */
-            z-index: 11;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-
+        <!-- バージョン更新ボタンコンテナ -->
         <div class="version-update-container">
-            <button id="btn-version" class="btn btn-version">
-                <span id="unread-dot" class="unread-dot"></span>
+            <span class="unread-dot hidden" id="unread-dot"></span>
+            <button class="btn btn-version" id="version-btn">
                 <span class="btn-version-content">バージョン更新</span>
             </button>
         </div>
-
+        
         <div class="header">
             <img src="https://www.streetfighter.com/6/assets/images/common/logo.png" alt="Street Fighter 6 Logo">
         </div>
@@ -657,7 +624,6 @@
                 </select>
             </div>
 
-            <!-- モード切替（HTML構造変更） -->
             <div class="mode-toggle">
                 <button id="mode-modern" class="mode-btn active" data-mode="modern">
                     <span class="mode-btn-content">
@@ -672,7 +638,7 @@
             </div>
         </div>
 
-        <div class="form-card" id="form-card"> <!-- 編集時にスクロールするためID追加 -->
+        <div class="form-card" id="form-card">
             
             <div class="form-grid">
                 <div class="form-group">
@@ -696,12 +662,10 @@
                 <div id="current-combo-display" contenteditable="true"></div>
                 
                 <button id="clear-combo-btn" class="btn btn-clear">入力をクリア</button>
-                <button id="cancel-edit-btn" class="btn btn-cancel modal-btn hidden" style="margin-top: 10px;">編集をキャンセル</button>
             </div>
             
-            <!-- コンボ追加ボタン（HTML構造変更） -->
             <button id="add-combo-btn" class="btn btn-add">
-                <span class="btn-add-content" id="add-combo-btn-content">このコンボを追加</span>
+                <span id="add-btn-text" class="btn-add-content">このコンボを追加</span>
             </button>
         </div>
 
@@ -713,6 +677,7 @@
 
     </div>
 
+    <!-- 削除確認モーダル -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-content">
             <p id="delete-modal-text">「コンボ名」を本当に削除しますか？</p>
@@ -730,20 +695,26 @@
     <!-- バージョン情報モーダル -->
     <div id="version-modal" class="modal-overlay">
         <div class="modal-content">
-            <h2 class="modal-title">バージョン情報</h2>
-            <div id="version-modal-body">
-                <p>v0.1.1 - コマンドの再編集を追加</p>
-                <p>v0.1.0 - ベータテスト</p>
+            <h2 class="main-title" style="font-size: 2rem; margin-top: 0;">UPDATE INFO</h2>
+            <div id="version-info-content" style="text-align: left; max-height: 300px; overflow-y: auto; padding-right: 10px;">
+                <!-- JSで挿入されます -->
             </div>
-            <div class="modal-actions">
-                <button id="version-modal-close" class="btn btn-cancel modal-btn">閉じる</button>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button id="version-modal-close" class="btn btn-cancel modal-btn" style="flex-grow: 1;">閉じる</button>
             </div>
         </div>
     </div>
 
-    <!-- <script src="script.js" defer></script> -->
+    <!-- script.jsの内容をここに統合 -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+
+            // アプリのバージョンと更新履歴
+            const APP_VERSION = 'v0.1.1';
+            const VERSION_HISTORY = [
+                { version: 'v0.1.1', notes: 'コンボの再編集機能を追加。' },
+                { version: 'v0.1.0', notes: 'ベータテスト開始。' }
+            ];
 
             const allCommandUrls = {
                 'down': 'https://www.streetfighter.com/6/assets/images/common/controller/key-d.png',
@@ -792,35 +763,33 @@
                 commandPad: document.getElementById('command-pad'),
                 currentComboDisplay: document.getElementById('current-combo-display'),
                 clearComboBtn: document.getElementById('clear-combo-btn'),
-                cancelEditBtn: document.getElementById('cancel-edit-btn'), // 編集キャンセルボタン
                 addComboBtn: document.getElementById('add-combo-btn'),
-                addComboBtnContent: document.getElementById('add-combo-btn-content'), // ボタンのテキスト
+                addBtnText: document.getElementById('add-btn-text'),
                 comboList: document.getElementById('combo-list'),
                 comboNameInput: document.getElementById('combo-name'),
                 driveGaugeInput: document.getElementById('drive-gauge'),
                 saGaugeInput: document.getElementById('sa-gauge'),
-                formCard: document.getElementById('form-card'), // スクロール用
+                formCard: document.getElementById('form-card'), // 編集時のスクロール用
+                // 削除モーダル
                 deleteModal: document.getElementById('delete-modal'),
                 deleteModalText: document.getElementById('delete-modal-text'),
                 dontAskAgainCheck: document.getElementById('dont-ask-again'),
                 modalBtnCancel: document.getElementById('modal-btn-cancel'),
                 modalBtnConfirm: document.getElementById('modal-btn-confirm'),
-                // バージョン更新用
-                versionBtn: document.getElementById('btn-version'),
+                // バージョンモーダル
+                versionBtn: document.getElementById('version-btn'),
                 unreadDot: document.getElementById('unread-dot'),
                 versionModal: document.getElementById('version-modal'),
                 versionModalClose: document.getElementById('version-modal-close'),
+                versionInfoContent: document.getElementById('version-info-content'),
             };
 
             let selectedMode = 'modern';
             let selectedCharacter = 'all';
             let comboToDelete = null;
-            let dontAskOnDelete = localStorage.getItem('dontAskOnDelete') === 'true';
             let editingComboId = null; // 編集中のコンボID
-
-            const APP_VERSION = "v0.1.1"; // ★バージョン更新
-            const LAST_READ_VERSION_KEY = "sf6ComboMemoLastReadVersion";
-            const STORAGE_KEY = 'sf6ComboMemo';
+            let dontAskOnDelete = localStorage.getItem('dontAskOnDelete') === 'true';
+            let savedRange = null; // カーソル位置を保存する変数
 
             function createCommandPad() {
                 dom.commandPad.innerHTML = '';
@@ -846,6 +815,8 @@
                 commandGroups.classic.forEach(key => createBtn(key, 'classic-only'));
             }
 
+            // --- イベントリスナー ---
+
             dom.characterSelect.addEventListener('change', (e) => {
                 selectedCharacter = e.target.value;
                 loadCombos();
@@ -854,23 +825,91 @@
             dom.modeModernBtn.addEventListener('click', () => switchMode('modern'));
             dom.modeClassicBtn.addEventListener('click', () => switchMode('classic'));
 
+            // ★ current-combo-display 内でのカーソル位置を保存する
+            const saveSelection = () => {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    let container = range.startContainer;
+                    
+                    // 親をたどって #current-combo-display があるか確認
+                    while (container) {
+                        if (container.nodeType === 9) { // 9 = DOCUMENT_NODE
+                             break; // ドキュメントルートまで達したら終了
+                        }
+                        if (container.id === 'current-combo-display') {
+                            savedRange = range; // 入力欄の中なら保存
+                            return; 
+                        }
+                        container = container.parentElement;
+                    }
+                }
+            };
+            // ★ blur, mouseup, keyup でカーソル位置を保存
+            dom.currentComboDisplay.addEventListener('blur', saveSelection);
+            dom.currentComboDisplay.addEventListener('mouseup', saveSelection);
+            dom.currentComboDisplay.addEventListener('keyup', saveSelection);
+
+
             dom.commandPad.addEventListener('click', (e) => onCommandClick(e));
 
+            // ペースト時の処理
+            dom.currentComboDisplay.addEventListener('paste', (e) => {
+                e.preventDefault(); 
+                const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+                if (!text) return;
+
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+                
+                const range = selection.getRangeAt(0);
+                
+                let container = range.startContainer;
+                let isInDisplay = false;
+                while (container) {
+                    if (container.id === 'current-combo-display') {
+                        isInDisplay = true;
+                        break;
+                    }
+                    container = container.parentElement;
+                }
+
+                if (!isInDisplay) {
+                    range.selectNodeContents(dom.currentComboDisplay);
+                    range.collapse(false); 
+                }
+
+                range.deleteContents(); 
+                
+                const textNode = document.createTextNode(text);
+                range.insertNode(textNode);
+                
+                // ゼロ幅スペースを挿入してカーソル位置を制御
+                const zeroWidthSpace = document.createTextNode('\u200B');
+                range.insertNode(zeroWidthSpace);
+
+                range.setStartAfter(zeroWidthSpace);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            });
+
             dom.clearComboBtn.addEventListener('click', () => {
-                dom.currentComboDisplay.innerHTML = '';
+                if (editingComboId) {
+                    // 編集キャンセルの場合
+                    resetForm();
+                } else {
+                    // 通常のクリアの場合
+                    dom.currentComboDisplay.innerHTML = '';
+                }
             });
 
-            // 編集キャンセルボタン
-            dom.cancelEditBtn.addEventListener('click', () => {
-                exitEditMode();
-            });
-
-            // コンボ追加 / 更新ボタン
             dom.addComboBtn.addEventListener('click', () => {
                 const name = dom.comboNameInput.value.trim();
                 const gauge = parseInt(dom.driveGaugeInput.value, 10) || 0;
                 const saGauge = parseInt(dom.saGaugeInput.value, 10) || 0;
-                const commandsHtml = dom.currentComboDisplay.innerHTML;
+                // ★ 修正：ゼロ幅スペースの削除処理を削除 (不要になったため)
+                const commandsHtml = dom.currentComboDisplay.innerHTML; 
 
                 if (!name) {
                     showInputError(dom.comboNameInput, 'コンボの名前を入力してください。');
@@ -881,36 +920,37 @@
                     return;
                 }
 
-                const comboData = {
-                    // id は保存/更新時に設定
-                    name: name,
-                    gauge: gauge,
-                    saGauge: saGauge,
-                    commands: commandsHtml,
-                    mode: selectedMode,
-                    character: dom.characterSelect.value
-                };
-
-                if (editingComboId !== null) {
-                    // 更新モード
-                    updateCombo(editingComboId, comboData);
-                    exitEditMode();
+                if (editingComboId) {
+                    // コンボを更新
+                    updateCombo({
+                        id: editingComboId,
+                        name: name,
+                        gauge: gauge,
+                        saGauge: saGauge,
+                        commands: commandsHtml,
+                        mode: selectedMode,
+                        character: dom.characterSelect.value 
+                    });
                 } else {
-                    // 新規追加モード
-                    comboData.id = Date.now();
-                    saveCombo(comboData);
+                    // 新規コンボを追加
+                    saveCombo({
+                        id: Date.now(),
+                        name: name,
+                        gauge: gauge,
+                        saGauge: saGauge,
+                        commands: commandsHtml,
+                        mode: selectedMode,
+                        character: dom.characterSelect.value
+                    });
                 }
-
-                loadCombos();
                 
-                // 新規追加の場合のみフォームをリセット
-                if (editingComboId === null) {
-                    clearInputForm();
-                }
+                loadCombos();
+                resetForm();
             });
             
+            // --- 削除モーダル関連 ---
             dom.modalBtnCancel.addEventListener('click', () => {
-                dom.deleteModal.style.display = 'none';
+                hideModal(dom.deleteModal);
                 comboToDelete = null;
             });
             
@@ -924,9 +964,31 @@
                     removeCombo(comboToDelete.id);
                     loadCombos();
                 }
-                dom.deleteModal.style.display = 'none';
+                hideModal(dom.deleteModal);
                 comboToDelete = null;
             });
+
+            // --- バージョンモーダル関連 ---
+            dom.versionBtn.addEventListener('click', () => {
+                showVersionModal();
+            });
+            dom.versionModalClose.addEventListener('click', () => {
+                hideModal(dom.versionModal);
+            });
+            // モーダル背景クリックで閉じる
+            dom.versionModal.addEventListener('click', (e) => {
+                if (e.target === dom.versionModal) {
+                    hideModal(dom.versionModal);
+                }
+            });
+            dom.deleteModal.addEventListener('click', (e) => {
+                if (e.target === dom.deleteModal) {
+                    hideModal(dom.deleteModal);
+                }
+            });
+
+
+            // --- 関数定義 ---
 
             function switchMode(mode) {
                 selectedMode = mode;
@@ -941,10 +1003,11 @@
                     dom.commandPad.classList.remove('modern-mode');
                     dom.commandPad.classList.add('classic-mode');
                 }
-                exitEditMode(); // モード切替時は編集モード解除
                 loadCombos();
+                resetForm(); // モード切替時はフォームリセット
             }
 
+            // コマンドボタンクリック
             function onCommandClick(e) {
                 const btn = e.target.closest('.command-btn');
                 if (btn) {
@@ -953,24 +1016,34 @@
                     img.src = imgSrc;
                     img.onerror = function() { this.style.display='none'; }
                     
-                    dom.currentComboDisplay.focus(); // 編集可能エリアにフォーカス
+                    dom.currentComboDisplay.focus(); // まずフォーカスを戻す
                     const selection = window.getSelection();
-                    if (!selection.rangeCount) {
-                        dom.currentComboDisplay.appendChild(img);
-                        return;
-                    }
-                    const range = selection.getRangeAt(0);
                     
-                    if (dom.currentComboDisplay.contains(range.startContainer)) {
-                        range.deleteContents();
-                        range.insertNode(img);
-                        range.setStartAfter(img);
-                        range.collapse(true);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                    } else {
-                        dom.currentComboDisplay.appendChild(img);
-                    }
+                    let range;
+
+                    // ★ 常に末尾に追加する
+                    range = document.createRange();
+                    range.selectNodeContents(dom.currentComboDisplay); // div全体を選択
+                    range.collapse(false); // 選択を解除し、カーソルを末尾(false)に移動
+
+                    selection.removeAllRanges(); // 現在の選択範囲をすべてクリア
+                    selection.addRange(range);   // 新しい末尾の range を適用
+
+                    range.deleteContents(); // (末尾なので何も削除されないはずだが念のため)
+                    range.insertNode(img);
+
+                    // ★ 修正：ゼロ幅スペースの挿入を削除
+                    // const zeroWidthSpace = document.createTextNode('\u200B');
+                    // range.insertNode(zeroWidthSpace);
+                    
+                    // ★ 修正：カーソルを img の直後に設定
+                    range.setStartAfter(img); 
+                    range.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+
+                    // ★ 次回の挿入のために、現在のカーソル位置（＝末尾）を保存
+                    savedRange = range;
                 }
             }
             
@@ -980,55 +1053,7 @@
                 setTimeout(() => { element.style.outline = 'none'; }, 2000);
             }
 
-            // --- 編集モード関連 ---
-            function enterEditMode(comboData) {
-                editingComboId = comboData.id;
-
-                // フォームにデータをロード
-                dom.comboNameInput.value = comboData.name;
-                dom.driveGaugeInput.value = comboData.gauge;
-                dom.saGaugeInput.value = comboData.saGauge;
-                dom.currentComboDisplay.innerHTML = comboData.commands;
-                
-                // キャラクターとモードが違う場合は合わせる
-                if (dom.characterSelect.value !== comboData.character) {
-                    dom.characterSelect.value = comboData.character;
-                    selectedCharacter = comboData.character;
-                }
-                if (selectedMode !== comboData.mode) {
-                    switchMode(comboData.mode); // リスト再読み込みも発生する
-                }
-
-                // UIを変更
-                dom.addComboBtnContent.textContent = 'このコンボを更新';
-                dom.addComboBtn.classList.add('edit-mode');
-                dom.clearComboBtn.classList.add('hidden');
-                dom.cancelEditBtn.classList.remove('hidden');
-
-                // フォームにスクロール
-                dom.formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-
-            function exitEditMode() {
-                editingComboId = null;
-                clearInputForm();
-
-                // UIを元に戻す
-                dom.addComboBtnContent.textContent = 'このコンボを追加';
-                dom.addComboBtn.classList.remove('edit-mode');
-                dom.clearComboBtn.classList.remove('hidden');
-                dom.cancelEditBtn.classList.add('hidden');
-            }
-            
-            function clearInputForm() {
-                dom.comboNameInput.value = '';
-                dom.driveGaugeInput.value = '0';
-                dom.saGaugeInput.value = '0';
-                dom.currentComboDisplay.innerHTML = '';
-            }
-
-            // --- ここまで編集モード関連 ---
-
+            // コンボカード作成 (編集ボタン追加)
             function createComboCard(comboData) {
                 const card = document.createElement('div');
                 card.className = 'combo-card';
@@ -1064,19 +1089,14 @@
                             ${driveGaugeHtml}
                             ${saGaugeHtml}
                         </div>
-                        <div class="action-buttons">
+                        <div>
                             <button class="btn btn-edit">編集</button>
                             <button class="btn btn-delete">削除</button>
                         </div>
                     </div>
                 `;
 
-                // 編集ボタン
-                card.querySelector('.btn-edit').addEventListener('click', () => {
-                    enterEditMode(comboData);
-                });
-
-                // 削除ボタン
+                // 削除ボタンのイベント
                 card.querySelector('.btn-delete').addEventListener('click', () => {
                     comboToDelete = comboData;
                     if (dontAskOnDelete) {
@@ -1086,13 +1106,51 @@
                     } else {
                         dom.deleteModalText.textContent = `「${comboData.name}」を本当に削除しますか？`;
                         dom.dontAskAgainCheck.checked = false;
-                        dom.deleteModal.style.display = 'flex';
-                        // フェードイン（削除モーダルにも適用）
-                        setTimeout(() => dom.deleteModal.classList.add('modal-visible'), 10);
+                        showModal(dom.deleteModal);
                     }
                 });
 
+                // 編集ボタンのイベント
+                card.querySelector('.btn-edit').addEventListener('click', () => {
+                    // 編集モードに移行
+                    editingComboId = comboData.id;
+                    
+                    // フォームにデータをロード
+                    dom.comboNameInput.value = comboData.name;
+                    dom.driveGaugeInput.value = comboData.gauge;
+                    dom.saGaugeInput.value = comboData.saGauge;
+                    dom.currentComboDisplay.innerHTML = comboData.commands;
+                    
+                    // キャラとモードを選択（重要：フィルターがかかっているためモードは同じはずだが、キャラは合わせる）
+                    dom.characterSelect.value = comboData.character;
+                    selectedCharacter = comboData.character;
+
+                    // ボタンのテキストとスタイルを変更
+                    dom.addBtnText.textContent = 'この内容で更新';
+                    dom.addComboBtn.classList.add('update-mode');
+                    dom.clearComboBtn.textContent = '編集をキャンセル';
+                    dom.clearComboBtn.classList.add('cancel-mode');
+                    
+                    // フォームにスクロール
+                    dom.formCard.scrollIntoView({ behavior: 'smooth' });
+                });
+
+
                 dom.comboList.appendChild(card);
+            }
+
+            // フォームをリセット（編集モード解除）
+            function resetForm() {
+                editingComboId = null;
+                dom.comboNameInput.value = '';
+                dom.driveGaugeInput.value = '0';
+                dom.saGaugeInput.value = '0';
+                dom.currentComboDisplay.innerHTML = '';
+                
+                dom.addBtnText.textContent = 'このコンボを追加';
+                dom.addComboBtn.classList.remove('update-mode');
+                dom.clearComboBtn.textContent = '入力をクリア';
+                dom.clearComboBtn.classList.remove('cancel-mode');
             }
 
             function loadCombos() {
@@ -1108,40 +1166,33 @@
                 filteredCombos.forEach(combo => createComboCard(combo));
             }
 
-            // --- ストレージ管理（共通化） ---
             function getCombosFromStorage() {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            }
-
-            function saveCombosToStorage(combos) {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(combos));
+                return JSON.parse(localStorage.getItem('sf6ComboMemo') || '[]');
             }
 
             function saveCombo(comboData) {
                 const combos = getCombosFromStorage();
                 combos.push(comboData);
-                saveCombosToStorage(combos);
+                localStorage.setItem('sf6ComboMemo', JSON.stringify(combos));
             }
 
-            function updateCombo(id, updatedData) {
+            // コンボ更新処理
+            function updateCombo(updatedComboData) {
                 let combos = getCombosFromStorage();
                 combos = combos.map(combo => {
-                    if (combo.id === id) {
-                        // id は元のものを維持しつつ、他の情報を更新
-                        return { ...updatedData, id: combo.id };
+                    if (combo.id === updatedComboData.id) {
+                        return updatedComboData; // 該当IDのコンボを新しいデータで置き換え
                     }
                     return combo;
                 });
-                saveCombosToStorage(combos);
+                localStorage.setItem('sf6ComboMemo', JSON.stringify(combos));
             }
 
             function removeCombo(id) {
                 let combos = getCombosFromStorage();
                 combos = combos.filter(combo => combo.id !== id);
-                saveCombosToStorage(combos);
+                localStorage.setItem('sf6ComboMemo', JSON.stringify(combos));
             }
-            // --- ここまでストレージ管理 ---
-
 
             function escapeHTML(str) {
                 return str.replace(/[&<>"']/g, function(match) {
@@ -1151,70 +1202,46 @@
 
             // --- バージョン管理 ---
             function checkVersionUpdate() {
-                const lastReadVersion = localStorage.getItem(LAST_READ_VERSION_KEY);
+                const lastReadVersion = localStorage.getItem('sf6LastReadVersion');
                 if (lastReadVersion !== APP_VERSION) {
-                    if(dom.unreadDot) dom.unreadDot.style.display = 'block';
+                    dom.unreadDot.classList.remove('hidden');
                 }
             }
 
             function showVersionModal() {
-                // 読んだことにする
-                if(dom.unreadDot) dom.unreadDot.style.display = 'none';
-                localStorage.setItem(LAST_READ_VERSION_KEY, APP_VERSION);
+                // バージョン履歴をモーダルに書き込む
+                let historyHtml = '';
+                VERSION_HISTORY.forEach(item => {
+                    historyHtml += `<h3 style="color: var(--highlight-color); margin-bottom: 5px;">${item.version}</h3><p style="margin-top: 0; margin-bottom: 15px;">- ${item.notes}</p>`;
+                });
+                dom.versionInfoContent.innerHTML = historyHtml;
                 
-                // フェードイン
-                if(dom.versionModal) {
-                    dom.versionModal.style.display = 'flex';
-                    setTimeout(() => {
-                        dom.versionModal.classList.add('modal-visible');
-                    }, 10); // display:flex が反映されるのを待つ
-                }
+                showModal(dom.versionModal);
+                
+                // モーダルを開いたら既読にする
+                localStorage.setItem('sf6LastReadVersion', APP_VERSION);
+                dom.unreadDot.classList.add('hidden');
+            }
+
+            // --- 汎用モーダル表示/非表示 ---
+            function showModal(modalElement) {
+                modalElement.style.display = 'flex';
+                setTimeout(() => {
+                    modalElement.classList.add('modal-visible');
+                }, 10); // display:flex が適用された直後にクラスを追加
             }
 
             function hideModal(modalElement) {
-                // 汎用モーダル非表示関数
-                if(modalElement) {
-                    modalElement.classList.remove('modal-visible');
-                    setTimeout(() => {
-                        modalElement.style.display = 'none';
-                    }, 300); // transitionの時間
-                }
+                modalElement.classList.remove('modal-visible');
+                setTimeout(() => {
+                    modalElement.style.display = 'none';
+                }, 300); // transitionの時間と合わせる
             }
 
-            // イベントリスナー (nullチェック追加)
-            if(dom.versionBtn) dom.versionBtn.addEventListener('click', showVersionModal);
-            if(dom.versionModalClose) dom.versionModalClose.addEventListener('click', () => hideModal(dom.versionModal));
-            
-            if(dom.versionModal) {
-                dom.versionModal.addEventListener('click', (e) => {
-                    if (e.target === dom.versionModal) {
-                        hideModal(dom.versionModal);
-                    }
-                });
-            }
-            
-            // 削除モーダルの非表示イベントにも適用
-            if(dom.modalBtnCancel) dom.modalBtnCancel.addEventListener('click', () => hideModal(dom.deleteModal));
-            if(dom.deleteModal) {
-                dom.deleteModal.addEventListener('click', (e) => {
-                    if (e.target === dom.deleteModal) {
-                        hideModal(dom.deleteModal);
-                    }
-                });
-            }
-            if(dom.modalBtnConfirm) {
-                 dom.modalBtnConfirm.addEventListener('click', () => {
-                    // 削除処理は既存のリスナーで行われる
-                    hideModal(dom.deleteModal); // 削除実行時も閉じる
-                 });
-            }
-            
-            // --- ここまでバージョン管理 ---
-
-
+            // --- 初期化処理 ---
             createCommandPad();
             switchMode(selectedMode);
-            checkVersionUpdate(); // 起動時にバージョンチェック
+            checkVersionUpdate();
         });
     </script>
 </body>
