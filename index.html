@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF6 COMMAND MEMO</title>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <style>
+        @font-face {
+            font-family: 'Gobold';
+            src: url('Gobold Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #2a2a4e;
+            --primary-color: #3a3a6a;
+            --highlight-color: #9a4ef1;
+            --text-color: #e0e0e0;
+            --border-color: #5a5a9a;
+            --drive-green: #08ff08;
+            --sa-red: #ff003c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0c0c1e;
+            background-image: url('https://www.streetfighter.com/article/sites/2/2023/05/ui01_01.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: rgba(12, 12, 30, 0.85);
+            border-radius: 10px;
+            border: 1px solid rgba(90, 90, 154, 0.5);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            max-width: 250px;
+            height: auto;
+        }
+
+        h2.main-title {
+            font-family: 'Gobold', sans-serif;
+            color: #fff;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--highlight-color), 0 0 20px var(--highlight-color);
+            margin: 10px 0 20px 0;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .controls-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .select-group {
+            flex-grow: 1;
+        }
+
+        .select-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        #character-select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .mode-toggle {
+            display: flex;
+            /* border: 2px solid var(--border-color); */ /* ← この枠線を削除 */
+            overflow: hidden; /* はみ出しを隠すため（ボタンの傾き） */
+            border-radius: 5px; /* ターゲット画像に合わせて角丸を復活 */
+        }
+
+        .mode-btn {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0; /* paddingを内部コンテナに移動 */
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            width: 140px; /* 幅を固定 */
+            
+            /* 平行四辺形 */
+            transform: skewX(-20deg);
+            
+            /* ボタン同士の境界線 */
+            border-right: 2px solid var(--bg-color); 
+        }
+
+        /* 最初のボタンの左マージンを調整 */
+        /* tan(20deg) * 48px (height) ≈ 17.5px. 18pxに丸める */
+        .mode-btn:first-child {
+            margin-left: -18px;
+        }
+
+        /* 最後のボタンの境界線を消す */
+        .mode-btn:last-child {
+            border-right: none;
+            margin-right: -18px; /* 傾きで右側が切れないように調整 */
+        }
+
+        .mode-btn-content {
+             /* 傾きを戻す */
+            transform: skewX(20deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+        }
+
+        /* 最初のボタンのコンテンツのパディングを調整（ネガティブマージン分） */
+        .mode-btn:first-child .mode-btn-content {
+            padding-left: 33px; /* 15px (original) + 18px (compensate) */
+        }
+
+        /* 最後のボタンのコンテンツのパディングを調整（ネガティブマージン分） */
+        .mode-btn:last-child .mode-btn-content {
+            padding-right: 33px; /* 15px (original) + 18px (compensate) */
+        }
+
+        .mode-btn img {
+            height: 24px;
+            width: auto;
+        }
+
+        .mode-btn:hover {
+            background-color: var(--highlight-color);
+        }
+
+        .mode-btn.active {
+            background-color: var(--highlight-color);
+            box-shadow: 0 0 15px var(--highlight-color);
+        }
+
+        .form-card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 90%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        #command-pad {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+            gap: 8px;
+            background-color: var(--bg-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        #command-pad.modern-mode .classic-only {
+            display: none;
+        }
+        #command-pad.classic-mode .modern-only {
+            display: none;
+        }
+
+        .command-btn {
+            background-color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .command-btn:hover {
+            background-color: var(--highlight-color);
+        }
+
+        .command-btn:active {
+            transform: scale(0.95);
+        }
+
+        .command-btn img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 40px;
+            object-fit: contain;
+        }
+
+        #current-combo-display {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            min-height: 40px;
+            background-color: #111;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 5px;
+            margin-top: 10px;
+            color: #fff;
+        }
+        #current-combo-display:focus {
+            outline: 2px solid var(--highlight-color);
+            box-shadow: 0 0 10px var(--highlight-color);
+        }
+
+        #current-combo-display img {
+            height: 35px;
+            width: auto;
+            margin: 0 2px;
+            vertical-align: middle;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        /* コンボ追加ボタン（平行四辺形） */
+        .btn-add {
+            background-color: var(--highlight-color);
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+            height: 45px; /* 高さを指定 */
+            
+            /* 平行四辺形 */
+            transform: skewX(-20deg);
+            border-radius: 0; /* 角丸をリセット */
+        }
+
+        .btn-add-content {
+            /* 傾きを戻す */
+            transform: skewX(20deg);
+            display: block;
+        }
+
+        .btn-add:hover { background-color: #b06ef3; }
+
+        .btn-clear {
+            background-color: #777;
+            color: white;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .btn-clear:hover { background-color: #999; }
+
+        .btn-delete {
+            background-color: #e94560;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            border-radius: 5px;
+        }
+        .btn-delete:hover { background-color: #f06a81; }
+
+        #combo-list {
+            display: grid;
+            /* grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); */
+            grid-template-columns: 1fr; /* 常に1列にする */
+            gap: 15px;
+        }
+
+        .combo-card {
+            background: linear-gradient(90deg, #4a00e0 0%, #8e2de2 70%, #9a4ef1 100%);
+            border: 1px solid var(--highlight-color);
+            box-shadow: 0 0 10px rgba(154, 78, 241, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+            min-height: 70px;
+            transition: transform 0.2s ease;
+        }
+        .combo-card:hover {
+            transform: scale(1.02);
+        }
+
+        .combo-content {
+            flex-grow: 1;
+            padding: 10px 15px;
+        }
+
+        .combo-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            display: inline-block;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .combo-card .combo-commands {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 30px;
+            padding: 3px;
+            border-radius: 4px;
+        }
+        .combo-card .combo-commands img {
+            height: 30px;
+            vertical-align: middle;
+        }
+
+        .combo-actions {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            min-width: 70px;
+        }
+
+        .gauge-display {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .drive-gauge-display, .sa-gauge-display {
+            display: flex;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 2px 8px;
+            border-radius: 5px;
+            height: 28px;
+        }
+
+        .drive-cost, .sa-cost {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 5px #000;
+        }
+
+        .drive-icon, .sa-icon {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #000;
+            transform: skewX(-20deg);
+            margin-right: 6px;
+        }
+
+        .drive-icon {
+            background-color: var(--drive-green);
+            box-shadow: 0 0 8px var(--drive-green);
+        }
+
+        .sa-icon {
+            background-color: var(--sa-red);
+            box-shadow: 0 0 8px var(--sa-red);
+        }
+
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-color);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--highlight-color);
+            box-shadow: 0 0 20px rgba(154, 78, 241, 0.7);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        .modal-checkbox {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            flex-grow: 1;
+            border-radius: 5px; /* モーダルボタンは角丸のまま */
+        }
+        .btn-confirm-delete {
+            background-color: #e94560;
+            color: white;
+        }
+        .btn-confirm-delete:hover { background-color: #f06a81; }
+        .btn-cancel {
+            background-color: #777;
+            color: white;
+        }
+        .btn-cancel:hover { background-color: #999; }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="https://www.streetfighter.com/6/assets/images/common/logo.png" alt="Street Fighter 6 Logo">
+        </div>
+        <h2 class="main-title">COMMAND MEMO</h2>
+
+        <div class="controls-container">
+            <div class="select-group">
+                <label for="character-select">CHARACTER</label>
+                <select id="character-select">
+                    <option value="all">すべてのキャラ</option>
+                    <option value="ryu">リュウ</option>
+                    <option value="luke">ルーク</option>
+                    <option value="jamie">ジェイミー</option>
+                    <option value="chunli">春麗</option>
+                    <option value="guile">ガイル</option>
+                    <option value="kimberly">キンバリー</option>
+                    <option value="juri">ジュリ</option>
+                    <option value="ken">ケン</option>
+                    <option value="blanka">ブランカ</option>
+                    <option value="dhalsim">ダルシム</option>
+                    <option value="honda">エドモンド本田</option>
+                    <option value="deejay">ディージェイ</option>
+                    <option value="manon">マノン</option>
+                    <option value="marisa">マリーザ</option>
+                    <option value="jp">JP</option>
+                    <option value="zangief">ザンギエフ</option>
+                    <option value="lily">リリー</option>
+                    <option value="cammy">キャミィ</option>
+                    <option value="rashid">ラシード</option>
+                    <option value="aki">A.K.I.</option>
+                    <option value="ed">エド</option>
+                    <option value="gouki">豪鬼</option>
+                    <option value="vega">ベガ</option>
+                    <option value="terry">テリー</option>
+                    <option value="mai">舞</option>
+                    <option value="elena">エレナ</option>
+                    <option value="sagat">サガット</option>
+                    <option value="viper">C.ヴァイパー</option>
+                </select>
+            </div>
+
+            <!-- モード切替（HTML構造変更） -->
+            <div class="mode-toggle">
+                <button id="mode-modern" class="mode-btn active" data-mode="modern">
+                    <span class="mode-btn-content">
+                        <img src="https://www.streetfighter.com/6/assets/images/mode/fg/logo-modern.png" alt="Modern">
+                    </span>
+                </button>
+                <button id="mode-classic" class="mode-btn" data-mode="classic">
+                    <span class="mode-btn-content">
+                        <img src="https://www.streetfighter.com/6/assets/images/mode/fg/logo-classic.png" alt="Classic">
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <div class="form-card">
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="combo-name">コンボの名前:</label>
+                    <input type="text" id="combo-name" placeholder="例: 中央 弱K始動">
+                </div>
+                <div class="form-group">
+                    <label for="drive-gauge">ドライブゲージ消費量:</label>
+                    <input type="number" id="drive-gauge" min="0" max="6" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="sa-gauge">SAゲージ消費量 (4=CA):</label>
+                    <input type="number" id="sa-gauge" min="0" max="4" value="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>コンボ入力 (文字入力もできます):</label>
+                <div id="command-pad" class="command-pad"></div>
+
+                <div id="current-combo-display" contenteditable="true"></div>
+                
+                <button id="clear-combo-btn" class="btn btn-clear">入力をクリア</button>
+            </div>
+            
+            <!-- コンボ追加ボタン（HTML構造変更） -->
+            <button id="add-combo-btn" class="btn btn-add">
+                <span class="btn-add-content">このコンボを追加</span>
+            </button>
+        </div>
+
+        <div class="combo-list-container">
+            <h2 class="main-title">COMBO LIST</h2>
+            <div id="combo-list">
+            </div>
+        </div>
+
+    </div>
+
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="delete-modal-text">「コンボ名」を本当に削除しますか？</p>
+            <div class="modal-checkbox">
+                <input type="checkbox" id="dont-ask-again">
+                <label for="dont-ask-again">今後この確認を表示しない</label>
+            </div>
+            <div class="modal-actions">
+                <button id="modal-btn-cancel" class="btn btn-cancel modal-btn">キャンセル</button>
+                <button id="modal-btn-confirm" class="btn btn-confirm-delete modal-btn">削除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- <script src="script.js" defer></script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const allCommandUrls = {
+                'down': 'https://www.streetfighter.com/6/assets/images/common/controller/key-d.png',
+                'right': 'https://www.streetfighter.com/6/assets/images/common/controller/key-r.png',
+                'down_left': 'https://www.streetfighter.com/6/assets/images/common/controller/key-dl.png',
+                'left': 'https://www.streetfighter.com/6/assets/images/common/controller/key-l.png',
+                'plus': 'https://www.streetfighter.com/6/assets/images/common/controller/key-plus.png',
+                'arrow': 'https://www.streetfighter.com/6/assets/images/common/controller/arrow_3.png',
+                'crouch': 'https://www.streetfighter.com/6/assets/images/common/controller/key-lc.png',
+                'down_c': 'https://www.streetfighter.com/6/assets/images/common/controller/key-dc.png',
+                'up': 'https://www.streetfighter.com/6/assets/images/common/controller/key-u.png',
+                'neutral': 'https://www.streetfighter.com/6/assets/images/common/controller/key-nutral.png',
+                'or': 'https://www.streetfighter.com/6/assets/images/common/controller/key-or.png',
+                'down_right': 'https://www.streetfighter.com/6/assets/images/common/controller/key-dr.png',
+                
+                'm_l': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_l.png',
+                'm_m': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_m.png',
+                'm_h': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_h.png',
+                'm_sp': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_sp.png',
+                'throw': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_throw.png',
+                'm_di': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_dl.png',
+                'm_dp': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_dp.png',
+                'm_auto': 'https://www.streetfighter.com/6/assets/images/common/controller/modern_auto.png',
+                'barrage': 'https://www.streetfighter.com/6/assets/images/common/controller/key-barrage.png',
+                
+                'punch': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_punch.png',
+                'kick': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_kick.png',
+                'hk': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_kick_h.png',
+                'mk': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_kick_m.png',
+                'mp': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_punch_m.png',
+                'lk': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_kick_l.png',
+                'lp': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_punch_l.png',
+                'hp': 'https://www.streetfighter.com/6/assets/images/common/controller/icon_punch_h.png',
+            };
+
+            const commandGroups = {
+                common: ['up', 'left', 'down', 'right', 'down_left', 'down_right', 'neutral', 'plus', 'arrow', 'or', 'crouch', 'down_c'],
+                modern: ['m_l', 'm_m', 'm_h', 'm_sp', 'm_auto', 'm_di', 'm_dp', 'throw', 'barrage'],
+                classic: ['lp', 'mp', 'hp', 'punch', 'lk', 'mk', 'hk', 'kick']
+            };
+
+            const dom = {
+                characterSelect: document.getElementById('character-select'),
+                modeModernBtn: document.getElementById('mode-modern'),
+                modeClassicBtn: document.getElementById('mode-classic'),
+                commandPad: document.getElementById('command-pad'),
+                currentComboDisplay: document.getElementById('current-combo-display'),
+                clearComboBtn: document.getElementById('clear-combo-btn'),
+                addComboBtn: document.getElementById('add-combo-btn'),
+                comboList: document.getElementById('combo-list'),
+                comboNameInput: document.getElementById('combo-name'),
+                driveGaugeInput: document.getElementById('drive-gauge'),
+                saGaugeInput: document.getElementById('sa-gauge'),
+                deleteModal: document.getElementById('delete-modal'),
+                deleteModalText: document.getElementById('delete-modal-text'),
+                dontAskAgainCheck: document.getElementById('dont-ask-again'),
+                modalBtnCancel: document.getElementById('modal-btn-cancel'),
+                modalBtnConfirm: document.getElementById('modal-btn-confirm'),
+            };
+
+            let selectedMode = 'modern';
+            let selectedCharacter = 'all';
+            let comboToDelete = null;
+            let dontAskOnDelete = localStorage.getItem('dontAskOnDelete') === 'true';
+
+            function createCommandPad() {
+                dom.commandPad.innerHTML = '';
+                
+                const createBtn = (key, typeClass) => {
+                    if (allCommandUrls[key]) {
+                        const btn = document.createElement('button');
+                        btn.className = `command-btn ${typeClass}`;
+                        btn.dataset.src = allCommandUrls[key];
+
+                        const img = document.createElement('img');
+                        img.src = allCommandUrls[key];
+                        img.alt = key;
+                        img.onerror = function() { this.style.display='none'; } 
+                        
+                        btn.appendChild(img);
+                        dom.commandPad.appendChild(btn);
+                    }
+                };
+                
+                commandGroups.common.forEach(key => createBtn(key, 'common'));
+                commandGroups.modern.forEach(key => createBtn(key, 'modern-only'));
+                commandGroups.classic.forEach(key => createBtn(key, 'classic-only'));
+            }
+
+            dom.characterSelect.addEventListener('change', (e) => {
+                selectedCharacter = e.target.value;
+                loadCombos();
+            });
+
+            dom.modeModernBtn.addEventListener('click', () => switchMode('modern'));
+            dom.modeClassicBtn.addEventListener('click', () => switchMode('classic'));
+
+            dom.commandPad.addEventListener('click', (e) => onCommandClick(e));
+
+            dom.clearComboBtn.addEventListener('click', () => {
+                dom.currentComboDisplay.innerHTML = '';
+            });
+
+            dom.addComboBtn.addEventListener('click', () => {
+                const name = dom.comboNameInput.value.trim();
+                const gauge = parseInt(dom.driveGaugeInput.value, 10) || 0;
+                const saGauge = parseInt(dom.saGaugeInput.value, 10) || 0;
+                const commandsHtml = dom.currentComboDisplay.innerHTML;
+
+                if (!name) {
+                    showInputError(dom.comboNameInput, 'コンボの名前を入力してください。');
+                    return;
+                }
+                if (commandsHtml.trim() === '') {
+                    showInputError(dom.currentComboDisplay, 'コンボ入力が空です。');
+                    return;
+                }
+
+                const comboData = {
+                    id: Date.now(),
+                    name: name,
+                    gauge: gauge,
+                    saGauge: saGauge,
+                    commands: commandsHtml,
+                    mode: selectedMode,
+                    character: dom.characterSelect.value
+                };
+
+                saveCombo(comboData);
+                loadCombos();
+                
+                dom.comboNameInput.value = '';
+                dom.driveGaugeInput.value = '0';
+                dom.saGaugeInput.value = '0';
+                dom.currentComboDisplay.innerHTML = '';
+            });
+            
+            dom.modalBtnCancel.addEventListener('click', () => {
+                dom.deleteModal.style.display = 'none';
+                comboToDelete = null;
+            });
+            
+            dom.modalBtnConfirm.addEventListener('click', () => {
+                if (dom.dontAskAgainCheck.checked) {
+                    localStorage.setItem('dontAskOnDelete', 'true');
+                    dontAskOnDelete = true;
+                }
+                
+                if (comboToDelete) {
+                    removeCombo(comboToDelete.id);
+                    loadCombos();
+                }
+                dom.deleteModal.style.display = 'none';
+                comboToDelete = null;
+            });
+
+            function switchMode(mode) {
+                selectedMode = mode;
+                if (mode === 'modern') {
+                    dom.modeModernBtn.classList.add('active');
+                    dom.modeClassicBtn.classList.remove('active');
+                    dom.commandPad.classList.add('modern-mode');
+                    dom.commandPad.classList.remove('classic-mode');
+                } else {
+                    dom.modeModernBtn.classList.remove('active');
+                    dom.modeClassicBtn.classList.add('active');
+                    dom.commandPad.classList.remove('modern-mode');
+                    dom.commandPad.classList.add('classic-mode');
+                }
+                loadCombos();
+            }
+
+            function onCommandClick(e) {
+                const btn = e.target.closest('.command-btn');
+                if (btn) {
+                    const imgSrc = btn.dataset.src;
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.onerror = function() { this.style.display='none'; }
+                    
+                    const selection = window.getSelection();
+                    if (!selection.rangeCount) {
+                        dom.currentComboDisplay.appendChild(img);
+                        return;
+                    }
+                    const range = selection.getRangeAt(0);
+                    
+                    if (dom.currentComboDisplay.contains(range.startContainer)) {
+                        range.deleteContents();
+                        range.insertNode(img);
+                        range.setStartAfter(img);
+                        range.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    } else {
+                        dom.currentComboDisplay.appendChild(img);
+                    }
+                }
+            }
+            
+            function showInputError(element, message) {
+                console.warn(message);
+                element.style.outline = '2px solid red';
+                setTimeout(() => { element.style.outline = 'none'; }, 2000);
+            }
+
+            function createComboCard(comboData) {
+                const card = document.createElement('div');
+                card.className = 'combo-card';
+
+                let driveGaugeHtml = '';
+                if (comboData.gauge > 0) {
+                    driveGaugeHtml = `
+                        <div class="drive-gauge-display">
+                            <div class="drive-icon"></div>
+                            <span class="drive-cost">${comboData.gauge}</span>
+                        </div>
+                    `;
+                }
+
+                let saGaugeHtml = '';
+                if (comboData.saGauge > 0) {
+                    const displayText = (comboData.saGauge === 4) ? 'CA' : comboData.saGauge;
+                    saGaugeHtml = `
+                        <div class="sa-gauge-display">
+                            <div class="sa-icon"></div>
+                            <span class="sa-cost">${displayText}</span>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="combo-content">
+                        <h3>${escapeHTML(comboData.name)}</h3>
+                        <div class="combo-commands">${comboData.commands}</div>
+                    </div>
+                    <div class="combo-actions">
+                        <div class="gauge-display">
+                            ${driveGaugeHtml}
+                            ${saGaugeHtml}
+                        </div>
+                        <button class="btn btn-delete">削除</button>
+                    </div>
+                `;
+
+                card.querySelector('.btn-delete').addEventListener('click', () => {
+                    comboToDelete = comboData;
+                    if (dontAskOnDelete) {
+                        removeCombo(comboData.id);
+                        loadCombos();
+                        comboToDelete = null;
+                    } else {
+                        dom.deleteModalText.textContent = `「${comboData.name}」を本当に削除しますか？`;
+                        dom.dontAskAgainCheck.checked = false;
+                        dom.deleteModal.style.display = 'flex';
+                    }
+                });
+
+                dom.comboList.appendChild(card);
+            }
+
+            function loadCombos() {
+                dom.comboList.innerHTML = '';
+                const allCombos = getCombosFromStorage();
+                
+                const filteredCombos = allCombos.filter(combo => {
+                    const modeMatch = combo.mode === selectedMode;
+                    const charMatch = (selectedCharacter === 'all' || combo.character === selectedCharacter);
+                    return modeMatch && charMatch;
+                });
+                
+                filteredCombos.forEach(combo => createComboCard(combo));
+            }
+
+            function getCombosFromStorage() {
+                return JSON.parse(localStorage.getItem('sf6ComboMemo') || '[]');
+            }
+
+            function saveCombo(comboData) {
+                const combos = getCombosFromStorage();
+                combos.push(comboData);
+                localStorage.setItem('sf6ComboMemo', JSON.stringify(combos));
+            }
+
+            function removeCombo(id) {
+                let combos = getCombosFromStorage();
+                combos = combos.filter(combo => combo.id !== id);
+                localStorage.setItem('sf6ComboMemo', JSON.stringify(combos));
+            }
+
+            function escapeHTML(str) {
+                return str.replace(/[&<>"']/g, function(match) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
+                });
+            }
+
+            createCommandPad();
+            switchMode(selectedMode);
+        });
+    </script>
+</body>
+</html>

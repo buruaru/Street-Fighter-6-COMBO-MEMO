@@ -1,0 +1,478 @@
+@font-face {
+    font-family: 'Gobold';
+    src: url('Gobold Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --bg-color: #1a1a2e;
+    --card-color: #2a2a4e;
+    --primary-color: #3a3a6a;
+    --highlight-color: #9a4ef1;
+    --text-color: #e0e0e0;
+    --border-color: #5a5a9a;
+    --drive-green: #08ff08;
+    --sa-red: #ff003c;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #0c0c1e;
+    background-image: url('https://www.streetfighter.com/article/sites/2/2023/05/ui01_01.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: rgba(12, 12, 30, 0.85);
+    border-radius: 10px;
+    border: 1px solid rgba(90, 90, 154, 0.5);
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header img {
+    max-width: 250px;
+    height: auto;
+}
+
+h2.main-title {
+    font-family: 'Gobold', sans-serif;
+    color: #fff;
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--highlight-color), 0 0 20px var(--highlight-color);
+    margin: 10px 0 20px 0;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.select-group {
+    flex-grow: 1;
+}
+
+.select-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+#character-select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.mode-toggle {
+    display: flex;
+    /* border: 2px solid var(--border-color); */ /* ← この枠線を削除 */
+    overflow: hidden; /* はみ出しを隠すため（ボタンの傾き） */
+    border-radius: 5px; /* ターゲット画像に合わせて角丸を復活 */
+}
+
+.mode-btn {
+    background-color: var(--primary-color);
+    border: none;
+    padding: 0; /* paddingを内部コンテナに移動 */
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    width: 140px; /* 幅を固定 */
+    
+    /* 平行四辺形 */
+    transform: skewX(-20deg);
+    
+    /* ボタン同士の境界線 */
+    border-right: 2px solid var(--bg-color); 
+}
+
+/* 最初のボタンの左マージンを調整 */
+/* tan(20deg) * 48px (height) ≈ 17.5px. 18pxに丸める */
+.mode-btn:first-child {
+    margin-left: -18px;
+}
+
+/* 最後のボタンの境界線を消す */
+.mode-btn:last-child {
+    border-right: none;
+    margin-right: -18px; /* 傾きで右側が切れないように調整 */
+}
+
+.mode-btn-content {
+     /* 傾きを戻す */
+    transform: skewX(20deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+}
+
+/* 最初のボタンのコンテンツのパディングを調整（ネガティブマージン分） */
+.mode-btn:first-child .mode-btn-content {
+    padding-left: 33px; /* 15px (original) + 18px (compensate) */
+}
+
+/* 最後のボタンのコンテンツのパディングを調整（ネガティブマージン分） */
+.mode-btn:last-child .mode-btn-content {
+    padding-right: 33px; /* 15px (original) + 18px (compensate) */
+}
+
+.mode-btn img {
+    height: 24px;
+    width: auto;
+}
+
+.mode-btn:hover {
+    background-color: var(--highlight-color);
+}
+
+.mode-btn.active {
+    background-color: var(--highlight-color);
+    box-shadow: 0 0 15px var(--highlight-color);
+}
+
+.form-card {
+    background-color: var(--card-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 90%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+#command-pad {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+    gap: 8px;
+    background-color: var(--bg-color);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+#command-pad.modern-mode .classic-only {
+    display: none;
+}
+#command-pad.classic-mode .modern-only {
+    display: none;
+}
+
+.command-btn {
+    background-color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.command-btn:hover {
+    background-color: var(--highlight-color);
+}
+
+.command-btn:active {
+    transform: scale(0.95);
+}
+
+.command-btn img {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 40px;
+    object-fit: contain;
+}
+
+#current-combo-display {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 40px;
+    background-color: #111;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 10px;
+    color: #fff;
+}
+#current-combo-display:focus {
+    outline: 2px solid var(--highlight-color);
+    box-shadow: 0 0 10px var(--highlight-color);
+}
+
+#current-combo-display img {
+    height: 35px;
+    width: auto;
+    margin: 0 2px;
+    vertical-align: middle;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+/* コンボ追加ボタン（平行四辺形） */
+.btn-add {
+    background-color: var(--highlight-color);
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+    height: 45px; /* 高さを指定 */
+    
+    /* 平行四辺形 */
+    transform: skewX(-20deg);
+    border-radius: 0; /* 角丸をリセット */
+}
+
+.btn-add-content {
+    /* 傾きを戻す */
+    transform: skewX(20deg);
+    display: block;
+}
+
+.btn-add:hover { background-color: #b06ef3; }
+
+.btn-clear {
+    background-color: #777;
+    color: white;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+.btn-clear:hover { background-color: #999; }
+
+.btn-delete {
+    background-color: #e94560;
+    color: white;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+}
+.btn-delete:hover { background-color: #f06a81; }
+
+#combo-list {
+    display: grid;
+    /* grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); */
+    grid-template-columns: 1fr; /* 常に1列にする */
+    gap: 15px;
+}
+
+.combo-card {
+    background: linear-gradient(90deg, #4a00e0 0%, #8e2de2 70%, #9a4ef1 100%);
+    border: 1px solid var(--highlight-color);
+    box-shadow: 0 0 10px rgba(154, 78, 241, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    min-height: 70px;
+    transition: transform 0.2s ease;
+}
+.combo-card:hover {
+    transform: scale(1.02);
+}
+
+.combo-content {
+    flex-grow: 1;
+    padding: 10px 15px;
+}
+
+.combo-card h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    display: inline-block;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.combo-card .combo-commands {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 30px;
+    padding: 3px;
+    border-radius: 4px;
+}
+.combo-card .combo-commands img {
+    height: 30px;
+    vertical-align: middle;
+}
+
+.combo-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    min-width: 70px;
+}
+
+.gauge-display {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.drive-gauge-display, .sa-gauge-display {
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 2px 8px;
+    border-radius: 5px;
+    height: 28px;
+}
+
+.drive-cost, .sa-cost {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 5px #000;
+}
+
+.drive-icon, .sa-icon {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #000;
+    transform: skewX(-20deg);
+    margin-right: 6px;
+}
+
+.drive-icon {
+    background-color: var(--drive-green);
+    box-shadow: 0 0 8px var(--drive-green);
+}
+
+.sa-icon {
+    background-color: var(--sa-red);
+    box-shadow: 0 0 8px var(--sa-red);
+}
+
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--card-color);
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid var(--highlight-color);
+    box-shadow: 0 0 20px rgba(154, 78, 241, 0.7);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+.modal-content p {
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.modal-checkbox {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    flex-grow: 1;
+    border-radius: 5px; /* モーダルボタンは角丸のまま */
+}
+.btn-confirm-delete {
+    background-color: #e94560;
+    color: white;
+}
+.btn-confirm-delete:hover { background-color: #f06a81; }
+.btn-cancel {
+    background-color: #777;
+    color: white;
+}
+.btn-cancel:hover { background-color: #999; }
+
+.hidden {
+    display: none;
+}
