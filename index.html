@@ -22,6 +22,8 @@
             --border-color: #5a5a9a;
             --drive-green: #08ff08;
             --sa-red: #ff003c;
+            --edit-blue: #007bff;
+            --edit-blue-hover: #0099ff;
         }
 
         body {
@@ -255,6 +257,7 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
+            gap: 2px; /* ★空白の代わりにgapを使用 */
             min-height: 40px;
             background-color: #111;
             border: 1px solid var(--border-color);
@@ -271,7 +274,7 @@
         #current-combo-display img {
             height: 35px;
             width: auto;
-            margin: 0 2px;
+            /* margin: 0 2px; ← 削除 */
             vertical-align: middle;
         }
 
@@ -296,6 +299,11 @@
             transform: skewX(-20deg);
             border-radius: 0; /* 角丸をリセット */
         }
+        
+        /* 編集モード時の色 */
+        .btn-add.edit-mode {
+            background-color: var(--edit-blue);
+        }
 
         .btn-add-content {
             /* 傾きを戻す */
@@ -304,6 +312,8 @@
         }
 
         .btn-add:hover { background-color: #b06ef3; }
+        .btn-add.edit-mode:hover { background-color: var(--edit-blue-hover); }
+
 
         .btn-clear {
             background-color: #777;
@@ -312,6 +322,13 @@
             border-radius: 5px;
         }
         .btn-clear:hover { background-color: #999; }
+        
+        .btn-cancel {
+            background-color: #777;
+            color: white;
+        }
+        .btn-cancel:hover { background-color: #999; }
+
 
         .btn-delete {
             background-color: #e94560;
@@ -321,6 +338,17 @@
             border-radius: 5px;
         }
         .btn-delete:hover { background-color: #f06a81; }
+        
+        .btn-edit {
+            background-color: var(--edit-blue);
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            border-radius: 5px;
+            margin-bottom: 5px; /* 削除ボタンとの間隔 */
+        }
+        .btn-edit:hover { background-color: var(--edit-blue-hover); }
+
 
         #combo-list {
             display: grid;
@@ -365,12 +393,18 @@
             min-height: 30px;
             padding: 3px;
             border-radius: 4px;
+            
+            /* ★レイアウト調整 */
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 2px;
         }
         .combo-card .combo-commands img {
             height: 30px;
-            vertical-align: middle;
+            /* vertical-align: middle; ← flexで制御するので削除 */
         }
-
+        
         .combo-actions {
             display: flex;
             flex-direction: column;
@@ -380,6 +414,15 @@
             background-color: rgba(0, 0, 0, 0.2);
             min-width: 70px;
         }
+        
+        /* 編集/削除ボタン用コンテナ */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-top: 5px; /* ゲージとの間隔 */
+        }
+
 
         .gauge-display {
             display: flex;
@@ -415,7 +458,7 @@
             background-color: var(--drive-green);
             box-shadow: 0 0 8px var(--drive-green);
         }
-
+        
         .sa-icon {
             background-color: var(--sa-red);
             box-shadow: 0 0 8px var(--sa-red);
@@ -474,6 +517,17 @@
             margin-top: 0;
             font-size: 1.1rem;
         }
+        
+        .modal-content #version-modal-body {
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .modal-content #version-modal-body p {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
 
         .modal-checkbox {
             margin: 20px 0;
@@ -487,6 +541,7 @@
             display: flex;
             justify-content: space-around;
             gap: 15px;
+            margin-top: 20px; /* バージョンモーダル用にマージン追加 */
         }
 
         .modal-btn {
@@ -617,7 +672,7 @@
             </div>
         </div>
 
-        <div class="form-card">
+        <div class="form-card" id="form-card"> <!-- 編集時にスクロールするためID追加 -->
             
             <div class="form-grid">
                 <div class="form-group">
@@ -641,11 +696,12 @@
                 <div id="current-combo-display" contenteditable="true"></div>
                 
                 <button id="clear-combo-btn" class="btn btn-clear">入力をクリア</button>
+                <button id="cancel-edit-btn" class="btn btn-cancel modal-btn hidden" style="margin-top: 10px;">編集をキャンセル</button>
             </div>
             
             <!-- コンボ追加ボタン（HTML構造変更） -->
             <button id="add-combo-btn" class="btn btn-add">
-                <span class="btn-add-content">このコンボを追加</span>
+                <span class="btn-add-content" id="add-combo-btn-content">このコンボを追加</span>
             </button>
         </div>
 
@@ -676,6 +732,7 @@
         <div class="modal-content">
             <h2 class="modal-title">バージョン情報</h2>
             <div id="version-modal-body">
+                <p>v0.1.1 - コマンドの再編集を追加</p>
                 <p>v0.1.0 - ベータテスト</p>
             </div>
             <div class="modal-actions">
@@ -683,7 +740,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- <script src="script.js" defer></script> -->
     <script>
@@ -736,11 +792,14 @@
                 commandPad: document.getElementById('command-pad'),
                 currentComboDisplay: document.getElementById('current-combo-display'),
                 clearComboBtn: document.getElementById('clear-combo-btn'),
+                cancelEditBtn: document.getElementById('cancel-edit-btn'), // 編集キャンセルボタン
                 addComboBtn: document.getElementById('add-combo-btn'),
+                addComboBtnContent: document.getElementById('add-combo-btn-content'), // ボタンのテキスト
                 comboList: document.getElementById('combo-list'),
                 comboNameInput: document.getElementById('combo-name'),
                 driveGaugeInput: document.getElementById('drive-gauge'),
                 saGaugeInput: document.getElementById('sa-gauge'),
+                formCard: document.getElementById('form-card'), // スクロール用
                 deleteModal: document.getElementById('delete-modal'),
                 deleteModalText: document.getElementById('delete-modal-text'),
                 dontAskAgainCheck: document.getElementById('dont-ask-again'),
@@ -757,9 +816,11 @@
             let selectedCharacter = 'all';
             let comboToDelete = null;
             let dontAskOnDelete = localStorage.getItem('dontAskOnDelete') === 'true';
+            let editingComboId = null; // 編集中のコンボID
 
-            const APP_VERSION = "v0.1.0";
+            const APP_VERSION = "v0.1.1"; // ★バージョン更新
             const LAST_READ_VERSION_KEY = "sf6ComboMemoLastReadVersion";
+            const STORAGE_KEY = 'sf6ComboMemo';
 
             function createCommandPad() {
                 dom.commandPad.innerHTML = '';
@@ -799,6 +860,12 @@
                 dom.currentComboDisplay.innerHTML = '';
             });
 
+            // 編集キャンセルボタン
+            dom.cancelEditBtn.addEventListener('click', () => {
+                exitEditMode();
+            });
+
+            // コンボ追加 / 更新ボタン
             dom.addComboBtn.addEventListener('click', () => {
                 const name = dom.comboNameInput.value.trim();
                 const gauge = parseInt(dom.driveGaugeInput.value, 10) || 0;
@@ -815,7 +882,7 @@
                 }
 
                 const comboData = {
-                    id: Date.now(),
+                    // id は保存/更新時に設定
                     name: name,
                     gauge: gauge,
                     saGauge: saGauge,
@@ -824,13 +891,22 @@
                     character: dom.characterSelect.value
                 };
 
-                saveCombo(comboData);
+                if (editingComboId !== null) {
+                    // 更新モード
+                    updateCombo(editingComboId, comboData);
+                    exitEditMode();
+                } else {
+                    // 新規追加モード
+                    comboData.id = Date.now();
+                    saveCombo(comboData);
+                }
+
                 loadCombos();
                 
-                dom.comboNameInput.value = '';
-                dom.driveGaugeInput.value = '0';
-                dom.saGaugeInput.value = '0';
-                dom.currentComboDisplay.innerHTML = '';
+                // 新規追加の場合のみフォームをリセット
+                if (editingComboId === null) {
+                    clearInputForm();
+                }
             });
             
             dom.modalBtnCancel.addEventListener('click', () => {
@@ -865,6 +941,7 @@
                     dom.commandPad.classList.remove('modern-mode');
                     dom.commandPad.classList.add('classic-mode');
                 }
+                exitEditMode(); // モード切替時は編集モード解除
                 loadCombos();
             }
 
@@ -876,6 +953,7 @@
                     img.src = imgSrc;
                     img.onerror = function() { this.style.display='none'; }
                     
+                    dom.currentComboDisplay.focus(); // 編集可能エリアにフォーカス
                     const selection = window.getSelection();
                     if (!selection.rangeCount) {
                         dom.currentComboDisplay.appendChild(img);
@@ -901,6 +979,55 @@
                 element.style.outline = '2px solid red';
                 setTimeout(() => { element.style.outline = 'none'; }, 2000);
             }
+
+            // --- 編集モード関連 ---
+            function enterEditMode(comboData) {
+                editingComboId = comboData.id;
+
+                // フォームにデータをロード
+                dom.comboNameInput.value = comboData.name;
+                dom.driveGaugeInput.value = comboData.gauge;
+                dom.saGaugeInput.value = comboData.saGauge;
+                dom.currentComboDisplay.innerHTML = comboData.commands;
+                
+                // キャラクターとモードが違う場合は合わせる
+                if (dom.characterSelect.value !== comboData.character) {
+                    dom.characterSelect.value = comboData.character;
+                    selectedCharacter = comboData.character;
+                }
+                if (selectedMode !== comboData.mode) {
+                    switchMode(comboData.mode); // リスト再読み込みも発生する
+                }
+
+                // UIを変更
+                dom.addComboBtnContent.textContent = 'このコンボを更新';
+                dom.addComboBtn.classList.add('edit-mode');
+                dom.clearComboBtn.classList.add('hidden');
+                dom.cancelEditBtn.classList.remove('hidden');
+
+                // フォームにスクロール
+                dom.formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            function exitEditMode() {
+                editingComboId = null;
+                clearInputForm();
+
+                // UIを元に戻す
+                dom.addComboBtnContent.textContent = 'このコンボを追加';
+                dom.addComboBtn.classList.remove('edit-mode');
+                dom.clearComboBtn.classList.remove('hidden');
+                dom.cancelEditBtn.classList.add('hidden');
+            }
+            
+            function clearInputForm() {
+                dom.comboNameInput.value = '';
+                dom.driveGaugeInput.value = '0';
+                dom.saGaugeInput.value = '0';
+                dom.currentComboDisplay.innerHTML = '';
+            }
+
+            // --- ここまで編集モード関連 ---
 
             function createComboCard(comboData) {
                 const card = document.createElement('div');
@@ -937,10 +1064,19 @@
                             ${driveGaugeHtml}
                             ${saGaugeHtml}
                         </div>
-                        <button class="btn btn-delete">削除</button>
+                        <div class="action-buttons">
+                            <button class="btn btn-edit">編集</button>
+                            <button class="btn btn-delete">削除</button>
+                        </div>
                     </div>
                 `;
 
+                // 編集ボタン
+                card.querySelector('.btn-edit').addEventListener('click', () => {
+                    enterEditMode(comboData);
+                });
+
+                // 削除ボタン
                 card.querySelector('.btn-delete').addEventListener('click', () => {
                     comboToDelete = comboData;
                     if (dontAskOnDelete) {
@@ -951,6 +1087,8 @@
                         dom.deleteModalText.textContent = `「${comboData.name}」を本当に削除しますか？`;
                         dom.dontAskAgainCheck.checked = false;
                         dom.deleteModal.style.display = 'flex';
+                        // フェードイン（削除モーダルにも適用）
+                        setTimeout(() => dom.deleteModal.classList.add('modal-visible'), 10);
                     }
                 });
 
@@ -970,21 +1108,40 @@
                 filteredCombos.forEach(combo => createComboCard(combo));
             }
 
+            // --- ストレージ管理（共通化） ---
             function getCombosFromStorage() {
-                return JSON.parse(localStorage.getItem('sf6ComboMemo') || '[]');
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            }
+
+            function saveCombosToStorage(combos) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(combos));
             }
 
             function saveCombo(comboData) {
                 const combos = getCombosFromStorage();
                 combos.push(comboData);
-                localStorage.setItem('sf6ComboMemo', JSON.stringify(combos));
+                saveCombosToStorage(combos);
+            }
+
+            function updateCombo(id, updatedData) {
+                let combos = getCombosFromStorage();
+                combos = combos.map(combo => {
+                    if (combo.id === id) {
+                        // id は元のものを維持しつつ、他の情報を更新
+                        return { ...updatedData, id: combo.id };
+                    }
+                    return combo;
+                });
+                saveCombosToStorage(combos);
             }
 
             function removeCombo(id) {
                 let combos = getCombosFromStorage();
                 combos = combos.filter(combo => combo.id !== id);
-                localStorage.setItem('sf6ComboMemo', JSON.stringify(combos));
+                saveCombosToStorage(combos);
             }
+            // --- ここまでストレージ管理 ---
+
 
             function escapeHTML(str) {
                 return str.replace(/[&<>"']/g, function(match) {
@@ -1014,27 +1171,44 @@
                 }
             }
 
-            function hideVersionModal() {
-                // フェードアウト
-                if(dom.versionModal) {
-                    dom.versionModal.classList.remove('modal-visible');
+            function hideModal(modalElement) {
+                // 汎用モーダル非表示関数
+                if(modalElement) {
+                    modalElement.classList.remove('modal-visible');
                     setTimeout(() => {
-                        dom.versionModal.style.display = 'none';
+                        modalElement.style.display = 'none';
                     }, 300); // transitionの時間
                 }
             }
 
             // イベントリスナー (nullチェック追加)
             if(dom.versionBtn) dom.versionBtn.addEventListener('click', showVersionModal);
-            if(dom.versionModalClose) dom.versionModalClose.addEventListener('click', hideVersionModal);
+            if(dom.versionModalClose) dom.versionModalClose.addEventListener('click', () => hideModal(dom.versionModal));
             
             if(dom.versionModal) {
                 dom.versionModal.addEventListener('click', (e) => {
                     if (e.target === dom.versionModal) {
-                        hideVersionModal();
+                        hideModal(dom.versionModal);
                     }
                 });
             }
+            
+            // 削除モーダルの非表示イベントにも適用
+            if(dom.modalBtnCancel) dom.modalBtnCancel.addEventListener('click', () => hideModal(dom.deleteModal));
+            if(dom.deleteModal) {
+                dom.deleteModal.addEventListener('click', (e) => {
+                    if (e.target === dom.deleteModal) {
+                        hideModal(dom.deleteModal);
+                    }
+                });
+            }
+            if(dom.modalBtnConfirm) {
+                 dom.modalBtnConfirm.addEventListener('click', () => {
+                    // 削除処理は既存のリスナーで行われる
+                    hideModal(dom.deleteModal); // 削除実行時も閉じる
+                 });
+            }
+            
             // --- ここまでバージョン管理 ---
 
 
