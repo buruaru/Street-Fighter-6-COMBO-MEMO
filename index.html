@@ -1024,7 +1024,7 @@
                 loadCombos(); 
             }
 
-            function switchMode(mode) {
+            function switchMode(mode, isEditLoad = false) {
                 selectedMode = mode;
                 if (mode === 'modern') {
                     dom.modeModernBtn.classList.add('active');
@@ -1037,8 +1037,11 @@
                     dom.commandPad.classList.remove('modern-mode');
                     dom.commandPad.classList.add('classic-mode');
                 }
-                loadCombos();
-                resetForm(); 
+                
+                if (!isEditLoad) {
+                    loadCombos();
+                    resetForm(); 
+                }
             }
 
             function onCommandClick(e) {
@@ -1138,7 +1141,7 @@
                             ${saGaugeHtml}
                         </div>
                         <div>
-                            <button class="btn btn-edit">編集</button>
+                            <button class="btn btn-edit" data-id="${comboData.id}">編集</button>
                             <button class="btn btn-delete">削除</button>
                         </div>
                     </div>
@@ -1157,13 +1160,17 @@
                     }
                 });
 
-                card.querySelector('.btn-edit').addEventListener('click', () => {
-                    editingComboId = comboData.id;
+                card.querySelector('.btn-edit').addEventListener('click', (e) => {
+                    const btn = e.currentTarget;
+                    const idToEdit = btn.dataset.id;
                     
-                    const originalCombo = getCombosFromStorage().find(c => c.id === comboData.id);
+                    editingComboId = parseInt(idToEdit, 10); 
+                    
+                    const originalCombo = getCombosFromStorage().find(c => c.id === editingComboId);
                     
                     if (!originalCombo) {
-                         console.error('編集対象のコンボが見つかりません。ID:', comboData.id);
+                         console.error('編集対象のコンボが見つかりません。ID:', editingComboId);
+                         resetForm();
                          return;
                     }
                     
@@ -1174,7 +1181,8 @@
                     
                     dom.characterSelect.value = originalCombo.character;
                     selectedCharacter = originalCombo.character;
-                    switchMode(originalCombo.mode);
+                    
+                    switchMode(originalCombo.mode, true);
 
 
                     dom.addBtnText.textContent = 'この内容で更新';
