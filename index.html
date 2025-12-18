@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SF6 COMMAND MEMO</title>
+    <!-- 画像生成用ライブラリ -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @font-face {
             font-family: 'Gobold';
@@ -21,6 +23,7 @@
             --border-color: #5a5a9a;
             --drive-green: #08ff08;
             --sa-red: #ff003c;
+            --twitter-color: #1DA1F2;
         }
 
         body {
@@ -403,6 +406,26 @@
         }
         .btn-edit:hover { background-color: #5a5a9a; }
 
+        /* Share Button Style */
+        .btn-share {
+            background-color: #1DA1F2;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            border-radius: 5px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn-share:hover { background-color: #40b7ff; }
+
+        .btn-share svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
 
         #combo-list {
             display: grid;
@@ -420,6 +443,7 @@
             align-items: stretch;
             min-height: 70px;
             transition: transform 0.2s ease;
+            position: relative; /* for capture */
         }
         .combo-card:hover {
             transform: scale(1.02);
@@ -463,6 +487,27 @@
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.2);
             min-width: 80px; 
+        }
+
+        /* 画像化の際に操作ボタンエリアを隠すためのクラス */
+        .hide-on-capture {
+            display: none !important;
+        }
+
+        /* キャプチャ時の代替テキストスタイル */
+        .capture-text-icon {
+            display: inline-block;
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #777;
+            border-radius: 3px;
+            padding: 2px 5px;
+            margin: 0 2px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            font-family: monospace;
+            vertical-align: middle;
+            line-height: 1.2;
         }
 
         .gauge-display {
@@ -567,6 +612,9 @@
             padding: 10px 20px;
             flex-grow: 1;
             border-radius: 5px; 
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
         }
         .btn-confirm-delete {
             background-color: #e94560;
@@ -578,6 +626,56 @@
             color: white;
         }
         .btn-cancel:hover { background-color: #999; }
+
+        /* Share Modal Specifics */
+        .generated-image-container {
+            margin: 15px 0;
+            border: 1px solid #555;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .generated-image-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        .btn-twitter {
+            background-color: #000;
+            color: #fff;
+            border: 1px solid #333;
+        }
+        .btn-twitter:hover {
+            background-color: #111;
+        }
+        .btn-copy-image {
+            background-color: var(--highlight-color);
+            color: white;
+        }
+        .btn-copy-image:hover {
+            background-color: #b06ef3;
+        }
+        .share-note {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-top: 10px;
+            text-align: left;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .step-list {
+            margin: 5px 0 0 15px;
+            padding: 0;
+            text-align: left;
+        }
+        .step-list li {
+            margin-bottom: 5px;
+        }
 
         .hidden {
             display: none;
@@ -698,6 +796,7 @@
 
     </div>
 
+    <!-- 削除確認モーダル -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-content">
             <p id="delete-modal-text">「コンボ名」を本当に削除しますか？</p>
@@ -712,6 +811,7 @@
         </div>
     </div>
 
+    <!-- バージョン情報モーダル -->
     <div id="version-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 class="main-title" style="font-size: 2rem; margin-top: 0;">UPDATE INFO</h2>
@@ -723,14 +823,45 @@
         </div>
     </div>
 
+    <!-- シェア用モーダル (修正版) -->
+    <div id="share-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <h3 style="margin-top:0; color:var(--highlight-color);">Share Combo</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 10px;">画像が生成されました。</p>
+            
+            <div id="generated-image-area" class="generated-image-container">
+                <!-- 生成された画像がここに入ります -->
+            </div>
+
+            <div class="modal-actions" style="flex-direction: column; gap: 10px;">
+                <button id="btn-copy-image" class="btn modal-btn btn-copy-image">画像をクリップボードにコピー</button>
+                <a id="btn-twitter-share" href="#" target="_blank" class="btn modal-btn btn-twitter" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px; fill: white;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+                    X でポストを作成
+                </a>
+                <button id="btn-share-close" class="btn btn-cancel modal-btn">閉じる</button>
+            </div>
+            <div class="share-note">
+                <strong>【共有の手順】</strong>
+                <ol class="step-list">
+                    <li>上の「画像をコピー」ボタンを押す</li>
+                    <li>「Xでポスト」ボタンを押してXを開く</li>
+                    <li>投稿画面で「貼り付け（ペースト）」する</li>
+                </ol>
+                ※仕様上、画像を自動でXに添付することはできません。<br>
+                ※画像化の際、アイコンはテキストに置き換わります。
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            const APP_VERSION = 'v0.1.2';
+            const APP_VERSION = 'v0.1.5';
             const VERSION_HISTORY = [
-                { version: 'v0.1.2', notes: 'コマンドが編集できないバグを修正しました。<br>- 1P2Pの切り替えができるようになりました。保存内容のコマンド左右が反転します。' },
-                { version: 'v0.1.1', notes: 'コンボの再編集機能を追加。' },
-                { version: 'v0.1.0', notes: 'ベータテスト開始。' }
+                { version: 'v0.1.5', notes: 'コンボ画像生成の修正と改善。<br>- 画像化時にアイコンが消える問題を修正（テキスト置換対応）。<br>- クリップボードコピーの動作を改善。' },
+                { version: 'v0.1.4', notes: 'コンボ画像の表示が消える問題を修正しました。' },
+                { version: 'v0.1.3', notes: 'コンボの画像化・共有機能を追加しました。' },
             ];
 
             const allCommandUrls = {
@@ -804,6 +935,12 @@
                 versionInfoContent: document.getElementById('version-info-content'),
                 player1PBtn: document.getElementById('player-1p'),
                 player2PBtn: document.getElementById('player-2p'),
+                // Share modal
+                shareModal: document.getElementById('share-modal'),
+                generatedImageArea: document.getElementById('generated-image-area'),
+                btnCopyImage: document.getElementById('btn-copy-image'),
+                btnTwitterShare: document.getElementById('btn-twitter-share'),
+                btnShareClose: document.getElementById('btn-share-close'),
             };
 
             let selectedMode = 'modern';
@@ -826,6 +963,7 @@
                         const img = document.createElement('img');
                         img.src = allCommandUrls[key];
                         img.alt = key;
+                        // CORS属性削除
                         img.onerror = function() { this.style.display='none'; } 
                         
                         btn.appendChild(img);
@@ -1011,6 +1149,52 @@
                     hideModal(dom.deleteModal);
                 }
             });
+            
+            // Share modal controls
+            dom.btnShareClose.addEventListener('click', () => {
+                hideModal(dom.shareModal);
+            });
+            dom.shareModal.addEventListener('click', (e) => {
+                if (e.target === dom.shareModal) {
+                    hideModal(dom.shareModal);
+                }
+            });
+            
+            dom.btnCopyImage.addEventListener('click', () => {
+                const img = dom.generatedImageArea.querySelector('img');
+                if (!img) return;
+
+                // Data URLをBlobに変換
+                const dataURItoBlob = (dataURI) => {
+                    const byteString = atob(dataURI.split(',')[1]);
+                    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    return new Blob([ab], {type: mimeString});
+                };
+
+                const blob = dataURItoBlob(img.src);
+
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    navigator.clipboard.write([
+                        new ClipboardItem({
+                            [blob.type]: blob
+                        })
+                    ]).then(() => {
+                        const originalText = dom.btnCopyImage.innerText;
+                        dom.btnCopyImage.innerText = 'コピーしました！';
+                        setTimeout(() => dom.btnCopyImage.innerText = originalText, 2000);
+                    }).catch(err => {
+                        console.error('Copy failed', err);
+                        alert('画像のコピーに失敗しました。\n画像を右クリック(または長押し)して保存してください。');
+                    });
+                } else {
+                    alert('お使いのブラウザはクリップボードコピーに対応していません。\n画像を右クリック(または長押し)して保存してください。');
+                }
+            });
 
 
             function switchPlayerSide(side) {
@@ -1051,6 +1235,8 @@
                     const imgSrc = btn.dataset.src;
                     const img = document.createElement('img');
                     img.src = imgSrc;
+                    img.alt = btn.querySelector('img').alt; // alt属性をセット
+                    // CORS属性削除
                     img.onerror = function() { this.style.display='none'; }
                     
                     dom.currentComboDisplay.focus(); 
@@ -1109,6 +1295,8 @@
             function createComboCard(comboData) {
                 const card = document.createElement('div');
                 card.className = 'combo-card';
+                // キャプチャ用IDを設定（一時的）
+                card.dataset.comboId = comboData.id;
 
                 let driveGaugeHtml = '';
                 if (comboData.gauge > 0) {
@@ -1141,12 +1329,19 @@
                             ${driveGaugeHtml}
                             ${saGaugeHtml}
                         </div>
-                        <div>
+                        <div class="action-buttons-group">
                             <button class="btn btn-edit" data-id="${comboData.id}">編集</button>
                             <button class="btn btn-delete">削除</button>
+                            <button class="btn btn-share" title="画像にして共有">
+                                <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                共有
+                            </button>
                         </div>
                     </div>
                 `;
+
+                // 画像内のimgタグのCORS設定を削除
+                // 何もしない（デフォルトでOK）
 
                 card.querySelector('.btn-delete').addEventListener('click', () => {
                     comboToDelete = comboData;
@@ -1180,6 +1375,8 @@
                     dom.saGaugeInput.value = originalCombo.saGauge;
                     dom.currentComboDisplay.innerHTML = originalCombo.commands;
                     
+                    // DOM上の画像のCORS設定も削除
+                    
                     dom.characterSelect.value = originalCombo.character;
                     selectedCharacter = originalCombo.character;
                     
@@ -1204,9 +1401,84 @@
                         savedRange = range;
                     }, 100); 
                 });
+                
+                // 共有ボタンイベント
+                card.querySelector('.btn-share').addEventListener('click', () => {
+                    shareComboCard(card, comboData.name);
+                });
 
 
                 dom.comboList.appendChild(card);
+            }
+
+            // コンボカードを画像化して共有モーダルを表示
+            function shareComboCard(cardElement, comboName) {
+                // 操作ボタンエリアを取得して一時的に隠すマーカーをつける
+                const actionButtons = cardElement.querySelector('.action-buttons-group');
+                if (actionButtons) actionButtons.classList.add('hide-on-capture');
+
+                // html2canvas実行
+                html2canvas(cardElement, {
+                    backgroundColor: null, 
+                    scale: 2, 
+                    useCORS: false, // 外部画像はキャプチャしない
+                    logging: false,
+                    onclone: (clonedDoc) => {
+                        // クローンされたDOMに対する操作
+                        
+                        // 1. 隠したい要素を非表示に
+                        const clonedActions = clonedDoc.querySelector('.hide-on-capture');
+                        if (clonedActions) clonedActions.style.display = 'none';
+                        
+                        // 2. カードのスタイル調整
+                        const clonedCard = clonedDoc.querySelector('.combo-card');
+                        if (clonedCard) {
+                            clonedCard.style.boxShadow = 'none';
+                            clonedCard.style.transform = 'none';
+                            clonedCard.style.width = cardElement.offsetWidth + 'px'; // 幅を固定
+                        }
+
+                        // 3. 画像(img)をaltテキスト(span)に置換する処理
+                        const images = clonedDoc.querySelectorAll('.combo-commands img');
+                        images.forEach(img => {
+                            const altText = img.alt || '';
+                            const span = clonedDoc.createElement('span');
+                            span.textContent = `[${altText}]`;
+                            span.className = 'capture-text-icon';
+                            img.parentNode.replaceChild(span, img);
+                        });
+                        
+                        // ゲージアイコンも同様に置換
+                        const gaugeIcons = clonedDoc.querySelectorAll('.gauge-display img, .drive-icon, .sa-icon');
+                         // drive-iconなどはdiv + background-imageなので、CSS画像もキャプチャされない可能性がある
+                         // 今回はbackground-colorで表現されているのでOKだが、念のため。
+                    }
+                }).then(canvas => {
+                    // 復元
+                    if (actionButtons) actionButtons.classList.remove('hide-on-capture');
+
+                    // 画像生成
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    // モーダルへセット
+                    dom.generatedImageArea.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = imgData;
+                    img.alt = 'Combo Image';
+                    dom.generatedImageArea.appendChild(img);
+
+                    // XシェアURL更新
+                    const text = encodeURIComponent(`【スト6コンボメモ】\nコンボ: ${comboName}\n#SF6CommandMemo`);
+                    const url = encodeURIComponent(window.location.href);
+                    dom.btnTwitterShare.href = `https://twitter.com/intent/tweet?text=${text}`; 
+
+                    // 表示
+                    showModal(dom.shareModal);
+                }).catch(err => {
+                    console.error('Image generation failed:', err);
+                    if (actionButtons) actionButtons.classList.remove('hide-on-capture');
+                    alert('画像の生成に失敗しました。');
+                });
             }
 
             function resetForm() {
